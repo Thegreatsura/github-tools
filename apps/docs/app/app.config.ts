@@ -1,6 +1,6 @@
 export default defineAppConfig({
   name: 'GitHub Tools',
-  description: 'AI-native GitHub tooling for safe, production-ready workflows.',
+  description: 'AI-callable GitHub tools for the Vercel AI SDK — presets, agents, durable workflows, and granular write approvals for production use.',
   landing: false,
   socials: {
     x: 'https://x.com/hugorcd',
@@ -8,7 +8,7 @@ export default defineAppConfig({
   seo: {
     titleTemplate: '%s - GitHub Tools',
     title: 'GitHub Tools',
-    description: 'AI-native GitHub tooling for safe, production-ready workflows.',
+    description: 'AI-callable GitHub tools for the Vercel AI SDK — presets, agents, durable workflows, and granular write approvals for production use.',
   },
   github: {
     rootDir: 'apps/docs',
