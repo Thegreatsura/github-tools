@@ -75,15 +75,17 @@ Omit `preset` to get all tools (same as `maintainer`).
 You can also import individual tool factories for full control:
 
 ```ts
-import { createOctokit, listPullRequests, createIssue } from '@github-tools/sdk'
+import { listPullRequests, createIssue } from '@github-tools/sdk'
 
-const octokit = createOctokit(process.env.GITHUB_TOKEN!)
+const token = process.env.GITHUB_TOKEN!
 
 const tools = {
-  listPullRequests: listPullRequests(octokit),
-  createIssue: createIssue(octokit),
+  listPullRequests: listPullRequests(token),
+  createIssue: createIssue(token),
 }
 ```
+
+Each tool factory accepts a `token` string. Tools use named module-level step functions with `"use step"` internally, ensuring proper step registration and full Node.js access when running inside a Vercel Workflow sandbox. See [Durable Agents](#durable-agents-vercel-workflow-sdk).
 
 ## Approval Control
 
@@ -139,6 +141,28 @@ const result = await generateText({
 ```
 
 Each step, toolpick picks the best ~5 tools using keyword + semantic search. All tools remain callable — only the visible set changes. See [toolpick docs](https://github.com/pontusab/toolpick) for LLM re-ranking, caching, and model-driven discovery options.
+
+## Durable Agents (Vercel Workflow SDK)
+
+All tools include `"use step"` directives with named, module-level step functions, making them natively compatible with the Vercel Workflow SDK. Each tool execution runs as a properly registered durable step with full Node.js access in the workflow sandbox.
+
+Use `DurableAgent` via the `@github-tools/sdk/workflow` subpath to make every LLM call and tool execution a retryable, crash-safe step:
+
+```ts
+import { createDurableGithubAgent } from '@github-tools/sdk/workflow'
+
+const agent = createDurableGithubAgent({
+  model: 'anthropic/claude-sonnet-4.6',
+  token: process.env.GITHUB_TOKEN!,
+  preset: 'maintainer',
+})
+```
+
+All presets work with `createDurableGithubAgent`.
+
+> **Approval control limitation**: `requireApproval` is accepted for forward-compatibility but is currently ignored by `DurableAgent`. The Workflow SDK does not yet support interactive tool approval — all tools execute immediately. Use `createGithubAgent` (standard `ToolLoopAgent`) when human-in-the-loop approval is required.
+
+> `workflow` and `@workflow/ai` are optional peer dependencies — install them only when using the workflow subpath.
 
 ## Available Tools
 
@@ -309,9 +333,40 @@ const stream = reviewer.stream({ prompt: 'Review PR #42 on vercel/ai' })
 
 All other `ToolLoopAgent` options (`stopWhen`, `toolChoice`, `onStepFinish`, etc.) are passed through.
 
+### `createDurableGithubAgent(options)`
+
+Returns a `DurableAgent` instance for use inside Vercel Workflow SDK functions. Every LLM call and tool execution runs as a durable step with automatic retries and crash recovery.
+
+Requires the optional peer dependencies `workflow` and `@workflow/ai`:
+
+```sh
+pnpm add workflow @workflow/ai
+```
+
+```ts
+import { createDurableGithubAgent } from '@github-tools/sdk/workflow'
+import { getWritable } from 'workflow'
+import type { ModelMessage, UIMessageChunk } from 'ai'
+
+async function chatWorkflow(messages: ModelMessage[], token: string) {
+  "use workflow"
+  const agent = createDurableGithubAgent({
+    model: 'anthropic/claude-sonnet-4.6',
+    token,
+    preset: 'code-review',
+  })
+  const writable = getWritable<UIMessageChunk>()
+  await agent.stream({ messages, writable })
+}
+```
+
+All presets (`code-review`, `issue-triage`, `ci-ops`, `repo-explorer`, `maintainer`) work with `createDurableGithubAgent`. The options are the same as `createGithubAgent` except it returns a `DurableAgent` instead of a `ToolLoopAgent`.
+
+> **Note:** `requireApproval` is accepted but currently ignored by `DurableAgent` — the Workflow SDK does not yet support interactive tool approval.
+
 ### `createOctokit(token)`
 
-Returns a configured [`@octokit/rest`](https://github.com/octokit/rest.js) instance. Useful when cherry-picking individual tools or building custom ones.
+Returns a configured [`octokit`](https://github.com/octokit/octokit.js) instance. Useful for building custom tools.
 
 ## License
 
