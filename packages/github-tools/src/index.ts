@@ -1,6 +1,6 @@
 import { getRepository, listBranches, getFileContent, createBranch, forkRepository, createRepository, createOrUpdateFile } from './tools/repository'
-import { listPullRequests, getPullRequest, createPullRequest, mergePullRequest, addPullRequestComment } from './tools/pull-requests'
-import { listIssues, getIssue, createIssue, addIssueComment, closeIssue } from './tools/issues'
+import { listPullRequests, getPullRequest, createPullRequest, mergePullRequest, addPullRequestComment, listPullRequestFiles, listPullRequestReviews, createPullRequestReview } from './tools/pull-requests'
+import { listIssues, getIssue, createIssue, addIssueComment, closeIssue, listLabels, addLabels, removeLabel } from './tools/issues'
 import { searchCode, searchRepositories } from './tools/search'
 import { listCommits, getCommit, getBlame } from './tools/commits'
 import { listGists, getGist, listGistComments, createGist, updateGist, deleteGist, createGistComment } from './tools/gists'
@@ -14,9 +14,12 @@ export type GithubWriteToolName =
   | 'createPullRequest'
   | 'mergePullRequest'
   | 'addPullRequestComment'
+  | 'createPullRequestReview'
   | 'createIssue'
   | 'addIssueComment'
   | 'closeIssue'
+  | 'addLabels'
+  | 'removeLabel'
   | 'createGist'
   | 'updateGist'
   | 'deleteGist'
@@ -56,12 +59,13 @@ export type GithubToolPreset = 'code-review' | 'issue-triage' | 'repo-explorer' 
 
 const PRESET_TOOLS: Record<GithubToolPreset, string[]> = {
   'code-review': [
-    'getPullRequest', 'listPullRequests', 'getFileContent', 'listCommits', 'getCommit', 'getBlame',
+    'getPullRequest', 'listPullRequests', 'listPullRequestFiles', 'listPullRequestReviews', 'getFileContent', 'listCommits', 'getCommit', 'getBlame',
     'getRepository', 'listBranches', 'searchCode',
-    'addPullRequestComment'
+    'addPullRequestComment', 'createPullRequestReview'
   ],
   'issue-triage': [
     'listIssues', 'getIssue', 'createIssue', 'addIssueComment', 'closeIssue',
+    'listLabels', 'addLabels', 'removeLabel',
     'getRepository', 'searchRepositories', 'searchCode'
   ],
   'ci-ops': [
@@ -72,8 +76,9 @@ const PRESET_TOOLS: Record<GithubToolPreset, string[]> = {
   ],
   'repo-explorer': [
     'getRepository', 'listBranches', 'getFileContent',
-    'listPullRequests', 'getPullRequest',
+    'listPullRequests', 'getPullRequest', 'listPullRequestFiles', 'listPullRequestReviews',
     'listIssues', 'getIssue',
+    'listLabels',
     'listCommits', 'getCommit', 'getBlame',
     'searchCode', 'searchRepositories',
     'listGists', 'getGist', 'listGistComments',
@@ -81,8 +86,9 @@ const PRESET_TOOLS: Record<GithubToolPreset, string[]> = {
   ],
   'maintainer': [
     'getRepository', 'listBranches', 'getFileContent', 'createBranch', 'forkRepository', 'createRepository', 'createOrUpdateFile',
-    'listPullRequests', 'getPullRequest', 'createPullRequest', 'mergePullRequest', 'addPullRequestComment',
+    'listPullRequests', 'getPullRequest', 'listPullRequestFiles', 'listPullRequestReviews', 'createPullRequest', 'mergePullRequest', 'addPullRequestComment', 'createPullRequestReview',
     'listIssues', 'getIssue', 'createIssue', 'addIssueComment', 'closeIssue',
+    'listLabels', 'addLabels', 'removeLabel',
     'listCommits', 'getCommit', 'getBlame',
     'searchCode', 'searchRepositories',
     'listGists', 'getGist', 'listGistComments', 'createGist', 'updateGist', 'deleteGist', 'createGistComment',
@@ -186,9 +192,15 @@ export function createGithubTools({ token, requireApproval = true, preset }: Git
     createPullRequest: createPullRequest(resolvedToken, approval('createPullRequest')),
     mergePullRequest: mergePullRequest(resolvedToken, approval('mergePullRequest')),
     addPullRequestComment: addPullRequestComment(resolvedToken, approval('addPullRequestComment')),
+    listPullRequestFiles: listPullRequestFiles(resolvedToken),
+    listPullRequestReviews: listPullRequestReviews(resolvedToken),
+    createPullRequestReview: createPullRequestReview(resolvedToken, approval('createPullRequestReview')),
     createIssue: createIssue(resolvedToken, approval('createIssue')),
     addIssueComment: addIssueComment(resolvedToken, approval('addIssueComment')),
     closeIssue: closeIssue(resolvedToken, approval('closeIssue')),
+    listLabels: listLabels(resolvedToken),
+    addLabels: addLabels(resolvedToken, approval('addLabels')),
+    removeLabel: removeLabel(resolvedToken, approval('removeLabel')),
     listGists: listGists(resolvedToken),
     getGist: getGist(resolvedToken),
     listGistComments: listGistComments(resolvedToken),
@@ -217,8 +229,8 @@ export type GithubTools = ReturnType<typeof createGithubTools>
 // Re-export individual tool factories for cherry-picking
 export { createOctokit } from './client'
 export { getRepository, listBranches, getFileContent, createBranch, forkRepository, createRepository, createOrUpdateFile } from './tools/repository'
-export { listPullRequests, getPullRequest, createPullRequest, mergePullRequest, addPullRequestComment } from './tools/pull-requests'
-export { listIssues, getIssue, createIssue, addIssueComment, closeIssue } from './tools/issues'
+export { listPullRequests, getPullRequest, createPullRequest, mergePullRequest, addPullRequestComment, listPullRequestFiles, listPullRequestReviews, createPullRequestReview } from './tools/pull-requests'
+export { listIssues, getIssue, createIssue, addIssueComment, closeIssue, listLabels, addLabels, removeLabel } from './tools/issues'
 export { searchCode, searchRepositories } from './tools/search'
 export { listCommits, getCommit, getBlame } from './tools/commits'
 export { listGists, getGist, listGistComments, createGist, updateGist, deleteGist, createGistComment } from './tools/gists'

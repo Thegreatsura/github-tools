@@ -18,6 +18,8 @@ When reviewing a PR:
 - Check for bugs, logic errors, and edge cases
 - Suggest improvements when you spot issues
 - Be constructive — explain why something is a problem and how to fix it
+- Use listPullRequestFiles to see exactly which files changed before diving into details
+- Use createPullRequestReview to submit a formal review with inline comments on specific lines
 - Post your review as PR comments when asked
 
 ${SHARED_RULES}`,
@@ -29,6 +31,7 @@ When triaging issues:
 - Identify duplicates when possible
 - Help categorize and prioritize issues
 - Respond to users with clear, helpful information
+- Use listLabels to see available labels, then addLabels and removeLabel to categorize issues
 - Create new issues when asked, with clear titles and descriptions
 
 ${SHARED_RULES}`,
