@@ -411,7 +411,7 @@ async function agentTurn(prompt: string) {
 }
 ```
 
-> See [`examples/pr-review-bot`](../../examples/pr-review-bot) for a complete PR review bot built with Chat SDK and Vercel Workflow.
+> See [`examples/pr-review-agent`](../../examples/pr-review-agent) for a complete PR review agent built with Chat SDK and Vercel Workflow.
 
 All presets (`code-review`, `issue-triage`, `ci-ops`, `repo-explorer`, `maintainer`) work with `createDurableGithubAgent`. Options mirror `createGithubAgent` with additional pass-through for `DurableAgentOptions` fields like `experimental_telemetry`, `onStepFinish`, `onFinish`, and `prepareStep`.
 

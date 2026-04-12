@@ -31,7 +31,7 @@ export default defineAppConfig({
         items: [
           'What is the difference between presets?',
           'How do I combine multiple presets?',
-          'Which preset should I use for a code review bot?',
+          'Which preset should I use for a code review agent?',
         ],
       },
       {

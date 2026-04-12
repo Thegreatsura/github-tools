@@ -18,8 +18,8 @@ export type ChatTurnPayload = { text: string }
 
 const adapters = { github: createGitHubAdapter() }
 
-export const bot = new Chat<typeof adapters, ThreadState>({
-  userName: process.env.GITHUB_BOT_USERNAME || 'pr-review-bot',
+export const agent = new Chat<typeof adapters, ThreadState>({
+  userName: process.env.GITHUB_AGENT_USERNAME || 'pr-review-agent',
   adapters,
   state: createMemoryState(),
 }).registerSingleton()
@@ -35,7 +35,7 @@ function extractGitHubContext(message: Message): GitHubContext {
   }
 }
 
-bot.onNewMention(async (thread: Thread<ThreadState>, message: Message) => {
+agent.onNewMention(async (thread: Thread<ThreadState>, message: Message) => {
   const ctx = extractGitHubContext(message)
   const sent = thread.createSentMessageFromMessage(message)
   await sent.addReaction(emoji.eyes)
@@ -45,7 +45,7 @@ bot.onNewMention(async (thread: Thread<ThreadState>, message: Message) => {
   await thread.setState({ runId: run.runId })
 })
 
-bot.onSubscribedMessage(async (thread: Thread<ThreadState>, message: Message) => {
+agent.onSubscribedMessage(async (thread: Thread<ThreadState>, message: Message) => {
   const state = await thread.state
   if (!state?.runId) return
   await resumeHook<ChatTurnPayload>(state.runId, { text: message.text })

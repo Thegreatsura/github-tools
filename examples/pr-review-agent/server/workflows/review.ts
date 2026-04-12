@@ -2,7 +2,7 @@ import { createHook, getWorkflowMetadata } from 'workflow'
 import { createGithubAgent } from '@github-tools/sdk'
 import { createLogger } from 'evlog'
 import { createAILogger, createEvlogIntegration } from 'evlog/ai'
-import type { ChatTurnPayload, GitHubContext } from '../lib/bot'
+import type { ChatTurnPayload, GitHubContext } from '../lib/agent'
 
 async function runAgentTurn(prompt: string, instructions: string) {
   'use step'

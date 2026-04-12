@@ -1,5 +1,5 @@
 {
-  "name": "@github-tools/pr-review-bot",
+  "name": "@github-tools/pr-review-agent",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,18 +1,18 @@
-# GitHub PR Review Bot
+# GitHub PR Review Agent
 
-A durable PR review bot in **~60 lines of code**. Tag it on any pull request, and it analyzes the changes, posts a structured review, and responds to follow-ups — all crash-safe.
+A durable PR review agent in **~60 lines of code**. Tag it on any pull request, and it analyzes the changes, posts a structured review, and responds to follow-ups — all crash-safe.
 
 Built with:
 
 - **[@github-tools/sdk](https://github-tools.com)** — 36 AI-callable GitHub tools (PRs, commits, issues, code search...)
-- **[Chat SDK](https://chat-sdk.dev)** — multi-platform bot framework with the GitHub adapter
+- **[Chat SDK](https://chat-sdk.dev)** — multi-platform agent framework with the GitHub adapter
 - **[Vercel Workflow](https://useworkflow.dev)** — durable execution that survives timeouts and restarts
 - **[evlog](https://evlog.dev)** — AI observability (token usage, tool calls, cost, timing)
 
 ## How it works
 
 ```
-@my-bot review this PR
+@my-agent review this PR
         │
         ▼
    Chat SDK receives webhook
@@ -45,11 +45,11 @@ GITHUB_TOKEN=ghp_...
 # Must match your GitHub webhook config
 GITHUB_WEBHOOK_SECRET=...
 
-# Bot username — this is how @mentions are detected
-GITHUB_BOT_USERNAME=my-review-bot
+# Agent username — this is how @mentions are detected
+GITHUB_AGENT_USERNAME=my-review-agent
 ```
 
-> **Important**: use a different GitHub account for the bot than the one commenting. The Chat SDK filters self-messages to prevent loops.
+> **Important**: use a different GitHub account for the agent than the one commenting. The Chat SDK filters self-messages to prevent loops.
 
 ### 2. Configure a GitHub webhook
 
@@ -80,13 +80,13 @@ Then update the webhook URL in your GitHub repository settings.
 
 ### 4. Try it
 
-Open a PR and comment `@my-review-bot review this PR`.
+Open a PR and comment `@my-review-agent review this PR`.
 
 ## Project structure
 
 ```
 server/
-  lib/bot.ts                       # Chat instance + event handlers
+  lib/agent.ts                     # Chat SDK instance + event handlers
   routes/webhooks/github.post.ts   # Webhook endpoint (5 lines)
   workflows/review.ts              # Durable agent workflow
 review-template.md                 # Review output format
@@ -96,15 +96,15 @@ review-template.md                 # Review output format
 
 ### Review format
 
-Edit `review-template.md` to change how the bot formats its reviews. The template is injected into the agent's instructions.
+Edit `review-template.md` to change how the agent formats its reviews. The template is injected into the agent's instructions.
 
 ### Preset
 
-The bot uses the `code-review` preset which includes tools for reading PRs, files, commits, and posting reviews. Swap it for any preset:
+The agent uses the `code-review` preset which includes tools for reading PRs, files, commits, and posting reviews. Swap it for any preset:
 
 | Preset | Tools included | Use case |
 |--------|---------------|----------|
-| `code-review` | PR files, diffs, blame, review comments | PR review bots |
+| `code-review` | PR files, diffs, blame, review comments | PR review agents |
 | `issue-triage` | Issues, labels, comments | Issue management |
 | `maintainer` | All read + write tools | Full repo management |
 | `ci-ops` | Workflow runs, jobs, dispatch | CI/CD monitoring |
@@ -130,7 +130,7 @@ model: 'anthropic/claude-sonnet-4.6'
 
 ### Adding platforms
 
-The bot works on GitHub out of the box, but Chat SDK supports multiple platforms. Add adapters to `bot.ts`:
+The agent works on GitHub out of the box, but Chat SDK supports multiple platforms. Add adapters to `agent.ts`:
 
 ```ts
 import { createSlackAdapter } from '@chat-adapter/slack'
@@ -150,7 +150,7 @@ Replace in-memory state with Redis for persistent thread subscriptions across re
 ```ts
 import { createRedisState } from '@chat-adapter/state-redis'
 
-const bot = new Chat({
+const agent = new Chat({
   // ...
   state: createRedisState(),
 })
@@ -158,7 +158,7 @@ const bot = new Chat({
 
 ### Observability
 
-The bot logs every agent turn with [evlog](https://evlog.dev), including:
+Every agent turn is logged with [evlog](https://evlog.dev), including:
 
 - Model, provider, and call count
 - Token usage and estimated cost

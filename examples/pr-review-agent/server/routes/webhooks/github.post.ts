@@ -1,8 +1,8 @@
 import { defineHandler } from 'nitro/h3'
-import { bot } from '../../lib/bot'
+import { agent } from '../../lib/agent'
 
 export default defineHandler(async (event) => {
-  const handler = bot.webhooks.github
+  const handler = agent.webhooks.github
   if (!handler) {
     return new Response('GitHub adapter not configured', { status: 404 })
   }
