@@ -1,5 +1,11 @@
 # @github-tools/sdk
 
+## 1.6.0
+
+### Minor Changes
+
+- [#29](https://github.com/vercel-labs/github-tools/pull/29) [`92f90e0`](https://github.com/vercel-labs/github-tools/commit/92f90e0912bb49f54615e7a417895dccb77e6f00) Thanks [@visyat](https://github.com/visyat)! - Adding support for coauthors on code authoring tools
+
 ## 1.5.0
 
 ### Minor Changes
