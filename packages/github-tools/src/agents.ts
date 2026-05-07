@@ -145,7 +145,7 @@ export function createGithubAgent({
   committer,
   coAuthors,
   ...agentOptions
-}: CreateGithubAgentOptions) {
+}: CreateGithubAgentOptions): ToolLoopAgent {
   const tools = createGithubTools({ token, requireApproval, preset, author, committer, coAuthors })
 
   return new ToolLoopAgent({

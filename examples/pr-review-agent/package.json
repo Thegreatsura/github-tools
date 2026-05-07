@@ -8,19 +8,19 @@
     "workflow:web": "npx workflow web"
   },
   "dependencies": {
-    "@github-tools/sdk": "workspace:*",
-    "ai": "^6",
-    "chat": "latest",
     "@chat-adapter/github": "latest",
     "@chat-adapter/state-memory": "latest",
+    "@github-tools/sdk": "workspace:*",
+    "@workflow/ai": "latest",
+    "ai": "^6.0.175",
+    "chat": "latest",
     "evlog": "latest",
-    "zod": "^4",
     "workflow": "latest",
-    "@workflow/ai": "latest"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nitro": "latest",
-    "typescript": "^5.8",
-    "vite": "^7"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.11"
   }
 }
