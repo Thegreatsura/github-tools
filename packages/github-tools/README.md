@@ -17,7 +17,7 @@ GitHub tools for the [AI SDK](https://ai-sdk.dev) — wrap GitHub's REST API as 
 pnpm add @github-tools/sdk
 ```
 
-`ai` and `zod` are peer dependencies:
+`ai` and `zod` are peer dependencies (`ai` v6 or v7; the eve subpath requires v7):
 
 ```sh
 pnpm add ai zod
@@ -195,7 +195,7 @@ Each step, toolpick picks the best ~5 tools using keyword + semantic search. All
 
 All tools include `"use step"` directives with named, module-level step functions, making them natively compatible with the Vercel Workflow SDK. Each tool execution runs as a properly registered durable step with full Node.js access in the workflow sandbox.
 
-Use `DurableAgent` via the `@github-tools/sdk/workflow` subpath to make every LLM call and tool execution a retryable, crash-safe step:
+Use `WorkflowAgent` via the `@github-tools/sdk/workflow` subpath to make every LLM call and tool execution a retryable, crash-safe step:
 
 ```ts
 import { createDurableGithubAgent } from '@github-tools/sdk/workflow'
@@ -207,11 +207,80 @@ const agent = createDurableGithubAgent({
 })
 ```
 
-All presets work with `createDurableGithubAgent`.
+All presets work with `createDurableGithubAgent`. Write tools honor `requireApproval` via `needsApproval` — the workflow pauses until the user approves or denies.
 
-> **Approval control limitation**: `requireApproval` is accepted for forward-compatibility but is currently ignored by `DurableAgent`. The Workflow SDK does not yet support interactive tool approval — all tools execute immediately. Use `createGithubAgent` (standard `ToolLoopAgent`) when human-in-the-loop approval is required.
+> `workflow` and `@ai-sdk/workflow` are optional peer dependencies — install them only when using the workflow subpath.
 
-> `workflow` and `@workflow/ai` are optional peer dependencies — install them only when using the workflow subpath.
+## eve
+
+[eve](https://eve.dev) is Vercel's filesystem-first agent framework. The `@github-tools/sdk/eve` subpath registers all GitHub tools via `defineDynamic` — one file, zero CLI.
+
+```sh
+pnpm add @github-tools/sdk eve ai zod
+```
+
+`eve` v0.19+ requires **`ai` v7** as a peer dependency.
+
+```ts
+// agent/tools/github.ts
+import { createGithubTools } from '@github-tools/sdk/eve'
+
+export default createGithubTools({
+  preset: ['code-review', 'issue-triage'],
+  requireApproval: {
+    mergePullRequest: true,
+    createIssue: 'once',
+    addPullRequestComment: false,
+    createOrUpdateFile: ({ toolInput }) => toolInput?.owner !== 'vercel-labs',
+  },
+})
+```
+
+Dynamic tools are named by their **bare map key** — the model sees `listPullRequests`, `createIssue`, and so on (same names as the AI SDK package). There is no automatic file-slug prefix when returning a tool map from `defineDynamic`.
+
+### Approval (eve)
+
+| Value | Maps to | Behavior |
+|---|---|---|
+| `true` / `'always'` | `always()` | Require approval on every call |
+| `false` / `'never'` | `never()` | Skip approval |
+| `'once'` | `once()` | Approve once per session, then auto-allow |
+| predicate | custom `Approval` | Input-dependent gate; booleans map to `user-approval` / `not-applicable` |
+| `always()` / `once()` / `never()` | passthrough | Use eve helpers directly |
+
+Default (no `requireApproval`): all write tools → `always()`. Unlisted write tools keep the `always()` fail-safe default.
+
+Unlike the Workflow SDK subpath, eve approval **works durably** — gated tools pause the session until a human approves.
+
+### Cherry-picking (one tool per file)
+
+```ts
+// agent/tools/list_pull_requests.ts
+import { listPullRequests } from '@github-tools/sdk/eve'
+
+export default listPullRequests()
+```
+
+### Idempotency
+
+eve replays completed steps but re-runs steps interrupted mid-execution. Write tools vary:
+
+| Tool | Idempotency |
+|---|---|
+| `createOrUpdateFile` | Natural when content + `sha` unchanged (skips no-op updates) |
+| `closeIssue` | Natural when already closed |
+| `createBranch` | Natural when branch exists at same SHA |
+| `addIssueComment`, `createIssue`, `mergePullRequest`, … | **Not** idempotent — each call creates new side effects |
+
+Gate non-idempotent writes behind `always()` or `once()` where replay safety matters.
+
+### Roadmap
+
+`// TODO(eve-auth)`: per-session GitHub tokens via eve connections (`auth: 'eve'`). For now, pass `token` explicitly or set `GITHUB_TOKEN`.
+
+> `eve` is an optional peer dependency — install it only when using the `/eve` subpath.
+
+See [`examples/eve-agent`](../../examples/eve-agent) for a minimal agent.
 
 ## Available Tools
 
@@ -438,9 +507,7 @@ async function agentTurn(prompt: string) {
 
 > See [`examples/pr-review-agent`](../../examples/pr-review-agent) for a complete PR review agent built with Chat SDK and Vercel Workflow.
 
-All presets (`code-review`, `issue-triage`, `ci-ops`, `repo-explorer`, `maintainer`) work with `createDurableGithubAgent`. Options mirror `createGithubAgent` with additional pass-through for `DurableAgentOptions` fields like `experimental_telemetry`, `onStepFinish`, `onFinish`, and `prepareStep`.
-
-> **Note:** `requireApproval` is accepted but currently ignored by `DurableAgent` — the Workflow SDK does not yet support interactive tool approval.
+All presets (`code-review`, `issue-triage`, `ci-ops`, `repo-explorer`, `maintainer`) work with `createDurableGithubAgent`. Options mirror `createGithubAgent` with additional pass-through for `WorkflowAgentOptions` fields like `experimental_telemetry`, `onStepEnd`, `onEnd`, and `prepareStep`. Write tools honor `requireApproval` via `needsApproval`.
 
 ### `createOctokit(token)`
 
