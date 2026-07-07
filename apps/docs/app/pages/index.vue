@@ -74,11 +74,10 @@ const frameworks = [
   },
 ]
 
-const deployTargets = [
-  { label: 'Nuxt', icon: 'i-simple-icons-nuxtdotjs' },
-  { label: 'Next.js', icon: 'i-simple-icons-nextdotjs' },
-  { label: 'Vercel', icon: 'i-simple-icons-vercel' },
-  { label: 'GitHub', icon: 'i-simple-icons-github' },
+const integrationStack = [
+  { label: 'TypeScript', icon: 'i-simple-icons-typescript' },
+  { label: 'Node.js', icon: 'i-simple-icons-nodedotjs' },
+  { label: 'Bun', icon: 'i-simple-icons-bun' },
 ]
 
 const guides = [
@@ -100,11 +99,11 @@ const apiLinks = [
 
 <template>
   <NuxtLayout name="docs">
-    <section class="space-y-16 pb-16 pt-10 sm:pt-14">
+    <section class="min-w-0 max-w-full space-y-16 pb-16 pt-10 sm:pt-14">
       <!-- Hero -->
       <header class="space-y-6">
         <h1 class="max-w-3xl text-4xl font-light tracking-tighter text-highlighted text-balance sm:text-5xl/[1.15]">
-          Give your AI agents full&nbsp;GitHub&nbsp;access
+          Connect GitHub to any agent
         </h1>
         <p class="max-w-2xl text-lg/8 text-toned">
           42 typed GitHub tools with presets, human approval, and durable execution — for the AI SDK, eve, Vercel Workflow, and Chat SDK.
@@ -171,8 +170,8 @@ const apiLinks = [
         <p class="vercel-section-label">
           Works with your framework
         </p>
-        <div class="grid gap-4 lg:grid-cols-2">
-          <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid min-w-0 gap-4 lg:grid-cols-2">
+          <div class="grid min-w-0 gap-4 sm:grid-cols-2">
             <NuxtLink
               v-for="framework in frameworks"
               :key="framework.title"
@@ -188,24 +187,19 @@ const apiLinks = [
           </div>
           <NuxtLink
             to="/frameworks/eve"
-            class="vercel-card group flex flex-col justify-between gap-6"
+            class="vercel-card group flex min-w-0 flex-col justify-between gap-4"
           >
-            <pre class="overflow-x-auto font-mono text-[13px]/6 text-toned"><code><span class="text-muted">// instructions.md</span>
-
+            <pre class="min-w-0 overflow-x-auto whitespace-pre font-mono text-[11px] leading-relaxed text-toned sm:text-xs"><code><span class="text-muted">// instructions.md</span>
 You are a GitHub code-review assistant.
 
 <span class="text-muted">// agent.ts</span>
-
 <span class="text-highlighted">import</span> { defineAgent } <span class="text-highlighted">from</span> 'eve'
-
 <span class="text-highlighted">export default</span> defineAgent({
   model: 'anthropic/claude-sonnet-5',
 })
 
 <span class="text-muted">// tools/github.ts</span>
-
 <span class="text-highlighted">import</span> { createGithubTools } <span class="text-highlighted">from</span> '@github-tools/sdk/eve'
-
 <span class="text-highlighted">export default</span> createGithubTools({
   preset: 'maintainer',
 })</code></pre>
@@ -216,9 +210,9 @@ You are a GitHub code-review assistant.
           </NuxtLink>
         </div>
         <div class="flex flex-wrap items-center gap-2 pt-2">
-          <span class="text-xs text-muted">Deploy anywhere:</span>
+          <span class="text-xs text-muted">Works in any TypeScript app:</span>
           <UBadge
-            v-for="target in deployTargets"
+            v-for="target in integrationStack"
             :key="target.label"
             color="neutral"
             variant="outline"

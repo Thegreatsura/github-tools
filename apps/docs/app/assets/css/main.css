@@ -83,3 +83,46 @@ html {
 .vercel-command-bar {
   @apply flex items-center gap-2 rounded-full border border-default bg-elevated px-4 py-2 font-mono text-sm text-toned;
 }
+
+/* AI assistant (right sidebar): contain overflow without breaking link layout */
+aside[data-side="right"] [data-slot="body"],
+aside[data-side="right"] [data-slot="inner"] {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+aside[data-side="right"] [data-slot="list"] {
+  min-width: 0;
+}
+
+aside[data-side="right"] [data-slot="link"] {
+  align-items: flex-start;
+  text-align: left;
+}
+
+aside[data-side="right"] .flex.flex-col.gap-6 {
+  gap: 1.25rem;
+}
+
+aside[data-side="right"] [data-slot="link"]:hover {
+  color: var(--ui-text-highlighted);
+  background-color: var(--ui-bg-accented);
+}
+
+aside[data-side="right"] [data-slot="linkLabel"] {
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+
+aside[data-side="right"] pre,
+aside[data-side="right"] .prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+aside[data-side="right"] .prose :where(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}

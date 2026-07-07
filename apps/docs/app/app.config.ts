@@ -22,41 +22,41 @@ export default defineAppConfig({
       {
         category: 'Get started',
         items: [
-          'How do I add GitHub tools to my AI app?',
-          'Which preset should I use for my use case?',
-          'What can the 42 tools actually do?',
+          'How do I add GitHub tools to my agent?',
+          'Which preset should I use?',
+          'What do the 42 tools cover?',
         ],
       },
       {
         category: 'Build agents',
         items: [
           'How do I build a GitHub agent with eve?',
-          'How do I build a PR review bot that responds to @mentions?',
-          'When should I use createGithubAgent vs raw createGithubTools?',
+          'How do I build a PR review bot?',
+          'When should I use createGithubAgent vs createGithubTools?',
         ],
       },
       {
         category: 'Go to production',
         items: [
-          'How do I make my agent survive crashes and timeouts?',
-          'How do I stream a durable agent to a chat UI?',
-          'How do I reduce token usage when the model sees 42 tools?',
+          'How do I make agents crash-safe with Workflow?',
+          'How do I stream a durable agent to chat?',
+          'How do I reduce tool context with toolpick?',
         ],
       },
       {
         category: 'Safety & auth',
         items: [
-          'How do I require human approval before the agent merges a PR?',
-          'Can I approve a write once and auto-allow it for the rest of the session?',
-          'How do I use Vercel Connect instead of a personal access token?',
+          'How do I require approval before merging?',
+          'How do I approve writes once per session?',
+          'How do I use Vercel Connect for tokens?',
         ],
       },
       {
         category: 'Customize',
         items: [
-          'How do I credit my bot as co-author on commits?',
-          'How do I override a tool description or approval per tool?',
-          'How do I cherry-pick only the tools I need?',
+          'How do I credit my bot on commits?',
+          'How do I override tool descriptions?',
+          'How do I cherry-pick individual tools?',
         ],
       },
     ],
@@ -117,6 +117,25 @@ export default defineAppConfig({
         linkTitle: 'font-normal text-[15px] text-highlighted mb-1 truncate',
       },
     },
+    button: {
+      compoundVariants: [
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class: 'ring-0 border border-default bg-accented text-highlighted shadow-sm hover:bg-muted hover:border-border-accented active:bg-muted',
+        },
+        {
+          color: 'neutral',
+          variant: 'subtle',
+          class: 'ring-1 ring-inset ring-default bg-accented text-toned hover:text-highlighted hover:bg-muted hover:ring-border-accented',
+        },
+        {
+          color: 'neutral',
+          variant: 'ghost',
+          class: 'text-toned hover:text-highlighted hover:bg-accented/80',
+        },
+      ],
+    },
     prose: {
       h1: {
         slots: {
@@ -149,7 +168,9 @@ export default defineAppConfig({
       },
       prompt: {
         slots: {
-          root: 'relative flex flex-wrap items-center gap-2 border border-default bg-muted rounded-lg px-4 py-3 my-5 last:mb-0',
+          root: 'relative my-4 flex flex-wrap items-center gap-2 border border-default bg-muted rounded-lg px-3 py-2.5',
+          description: 'min-w-0 flex-1 text-sm/5 text-toned',
+          actions: 'prompt-actions flex shrink-0 flex-wrap items-center gap-1.5 sm:ms-auto',
         },
       },
       p: {
@@ -168,6 +189,22 @@ export default defineAppConfig({
         orientation: {
           horizontal: {
             root: 'mb-3 flex items-start gap-3',
+          },
+        },
+      },
+    },
+    pageLinks: {
+      slots: {
+        root: 'flex flex-col gap-1.5',
+        title: 'text-[11px] font-medium uppercase tracking-wider text-muted',
+        list: 'flex flex-col gap-px',
+        link: 'w-full min-w-0 items-start text-left rounded-md px-2 py-1.5 transition-colors',
+        linkLabel: 'min-w-0 flex-1 whitespace-normal text-left text-[13px]/5 text-pretty',
+      },
+      variants: {
+        active: {
+          false: {
+            link: 'text-muted hover:text-highlighted hover:bg-accented',
           },
         },
       },
