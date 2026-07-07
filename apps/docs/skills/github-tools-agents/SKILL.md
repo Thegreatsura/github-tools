@@ -14,7 +14,7 @@ metadata:
 
 Use this skill when the user wants **GitHub API access from an LLM** via the [`@github-tools/sdk`](https://www.npmjs.com/package/@github-tools/sdk) package: `generateText` / `streamText`, `createGithubAgent`, or **durable** `createDurableGithubAgent` with the Vercel Workflow SDK.
 
-Official docs: **https://github-tools.com** — paths such as `/getting-started/installation`, `/guide/quick-start`, `/guide/durable-workflows`, `/guide/eve-agents`, `/guide/approval-control`, `/guide/token-permissions`, `/api/reference`. Copy-prompts for assistants are embedded on those pages.
+Official docs: **https://github-tools.com** — paths such as `/getting-started/installation`, `/getting-started/quick-start`, `/frameworks/ai-sdk`, `/frameworks/eve`, `/frameworks/vercel-workflow`, `/frameworks/chat-sdk`, `/guide/approval-control`, `/guide/tokens-and-auth`, `/api/reference`. Copy-prompts for assistants are embedded on those pages.
 
 ## When to use
 
@@ -78,7 +78,7 @@ export async function run(messages: ModelMessage[], token: string) {
 }
 ```
 
-**Limitation:** Durable agents require `@ai-sdk/workflow` and `WorkflowChatTransport` on the client for resumable streams. For predicate/`once` approval policies, use [eve agents](/guide/eve-agents).
+**Limitation:** Durable agents require `@ai-sdk/workflow` and `WorkflowChatTransport` on the client for resumable streams. For predicate/`once` approval policies, use [eve agents](/frameworks/eve).
 
 ### eve agent
 
@@ -91,7 +91,7 @@ import { createGithubTools } from '@github-tools/sdk/eve'
 export default createGithubTools({ preset: 'code-review' })
 ```
 
-See `./references/eve-agents.md` and `/guide/eve-agents`.
+See `./references/eve-agents.md` and `/frameworks/eve`.
 
 ## Presets
 

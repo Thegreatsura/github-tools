@@ -36,6 +36,12 @@ export default defineNuxtConfig({
         'GitHub REST API as AI SDK tools: generateText, streamText, ToolLoopAgent, eve defineDynamic, and Vercel Workflow DurableAgent.',
     },
   },
+  routeRules: {
+    '/guide/quick-start': { redirect: { to: '/getting-started/quick-start', statusCode: 301 } },
+    '/guide/eve-agents': { redirect: { to: '/frameworks/eve', statusCode: 301 } },
+    '/guide/durable-workflows': { redirect: { to: '/frameworks/vercel-workflow', statusCode: 301 } },
+    '/guide/token-permissions': { redirect: { to: '/guide/tokens-and-auth', statusCode: 301 } },
+  },
   content: {
     experimental: {
       sqliteConnector: 'native'

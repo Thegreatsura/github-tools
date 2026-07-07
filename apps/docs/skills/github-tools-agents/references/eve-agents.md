@@ -49,5 +49,5 @@ export default listPullRequests()
 
 ## Docs
 
-- `/guide/eve-agents`
+- `/frameworks/eve`
 - `examples/eve-agent/` — `pnpm dev:eve-agent` from monorepo root

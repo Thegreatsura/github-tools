@@ -6,12 +6,16 @@
   --font-mono: 'Geist Mono', ui-monospace, monospace;
 }
 
+html {
+  font-weight: 400;
+}
+
 :root {
   overscroll-behavior-y: none;
 
   /* Geist light — https://vercel.com/design.md */
   --ui-container: 75rem;
-  --ui-radius: 0.375rem;
+  --ui-radius: 0.175rem;
   --ui-primary: #171717;
 
   --ui-bg: #ffffff;
@@ -34,24 +38,24 @@
 }
 
 .dark {
-  /* Geist dark — https://vercel.com/design.dark.md */
+  /* Vercel dark — https://vercel.com/design.dark.md */
   --ui-primary: #ededed;
 
   --ui-bg: #000000;
-  --ui-bg-muted: #1a1a1a;
-  --ui-bg-elevated: #1f1f1f;
-  --ui-bg-accented: #292929;
+  --ui-bg-muted: #111111;
+  --ui-bg-elevated: #0a0a0a;
+  --ui-bg-accented: #171717;
   --ui-bg-inverted: #ededed;
 
-  --ui-text-dimmed: #878787;
-  --ui-text-muted: #878787;
+  --ui-text-dimmed: #666666;
+  --ui-text-muted: #888888;
   --ui-text-toned: #a0a0a0;
   --ui-text: #a0a0a0;
   --ui-text-highlighted: #ffffff;
   --ui-text-inverted: #171717;
 
-  --ui-border: #ffffff24;
-  --ui-border-muted: #ffffff21;
+  --ui-border: #ffffff1a;
+  --ui-border-muted: #ffffff14;
   --ui-border-accented: #ffffff24;
   --ui-border-inverted: #ededed;
 }
@@ -68,7 +72,14 @@
   --tw-ring-color: var(--ui-primary);
 }
 
-.hero-grid {
-  background-image: radial-gradient(circle, var(--ui-border) 1px, transparent 1px);
-  background-size: 24px 24px;
+.vercel-card {
+  @apply rounded-xl border border-default bg-elevated p-6 transition-colors hover:bg-muted;
+}
+
+.vercel-section-label {
+  @apply font-mono text-xs uppercase tracking-widest text-muted;
+}
+
+.vercel-command-bar {
+  @apply flex items-center gap-2 rounded-full border border-default bg-elevated px-4 py-2 font-mono text-sm text-toned;
 }

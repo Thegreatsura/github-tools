@@ -4,25 +4,24 @@ const appConfig = useAppConfig()
 
 <template>
   <div class="border-t border-default">
-    <UContainer class="px-0!">
-      <footer>
-        <div class="grid gap-8 border-b border-default px-6 py-8 sm:grid-cols-2 lg:grid-cols-4 md:px-8">
-          <div>
-            <AppHeaderLogo class="h-6 text-highlighted" />
+    <UContainer>
+      <footer class="py-12 sm:py-16">
+        <div class="mb-10 max-w-sm">
+          <AppHeaderLogo class="h-6 text-highlighted" />
+          <p class="mt-3 text-sm/6 text-toned">
+            {{ appConfig.description }}
+          </p>
+        </div>
 
-            <p class="mt-3 max-w-xs text-sm text-toned">
-              {{ appConfig.description }}
-            </p>
-          </div>
-
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div
             v-for="section in appConfig.footer?.sections"
             :key="section.title"
           >
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-highlighted">
+            <h3 class="vercel-section-label">
               {{ section.title }}
             </h3>
-            <ul class="mt-3 space-y-1">
+            <ul class="mt-4 space-y-2">
               <li
                 v-for="link in section.links"
                 :key="link.to"
@@ -41,7 +40,7 @@ const appConfig = useAppConfig()
           </div>
         </div>
 
-        <div class="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between md:px-8">
+        <div class="mt-12 flex flex-col gap-4 border-t border-default pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-sm text-muted">
             Copyright
             <a
@@ -64,6 +63,7 @@ const appConfig = useAppConfig()
               to="https://github.com/vercel-labs/github-tools"
               external
               icon="i-simple-icons-github"
+              class="text-highlighted"
               variant="ghost"
               color="neutral"
               size="sm"
@@ -73,6 +73,7 @@ const appConfig = useAppConfig()
               to="https://www.npmjs.com/package/@github-tools/sdk"
               external
               icon="i-simple-icons-npm"
+              class="text-highlighted"
               variant="ghost"
               color="neutral"
               size="sm"

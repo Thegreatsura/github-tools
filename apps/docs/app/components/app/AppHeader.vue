@@ -17,7 +17,7 @@ const links = computed(() => appConfig.github && appConfig.github.url
 </script>
 
 <template>
-  <UHeader :ui="{ left: 'lg:flex-none', center: 'flex-1', right: 'gap-2.5 [&_button]:text-highlighted', body: 'sm:p-4' }">
+  <UHeader :ui="{ left: 'lg:flex-none', center: 'flex-1', right: 'gap-2 [&_button]:text-highlighted [&_button:hover]:bg-elevated/50', body: 'sm:p-4' }">
     <AppHeaderCenter />
 
     <template #left>

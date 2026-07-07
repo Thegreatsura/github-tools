@@ -12,6 +12,7 @@ export default defineAppConfig({
   },
   github: {
     rootDir: 'apps/docs',
+    url: 'https://github.com/vercel-labs/github-tools',
   },
   assistant: {
     icons: {
@@ -19,35 +20,43 @@ export default defineAppConfig({
     },
     faqQuestions: [
       {
-        category: 'Tools',
+        category: 'Get started',
         items: [
-          'What tools are available in the SDK?',
-          'How do I use GitHub tools with generateText?',
-          'Which tools require write permissions?',
+          'How do I add GitHub tools to my AI app?',
+          'Which preset should I use for my use case?',
+          'What can the 42 tools actually do?',
         ],
       },
       {
-        category: 'Presets',
+        category: 'Build agents',
         items: [
-          'What is the difference between presets?',
-          'How do I combine multiple presets?',
-          'Which preset should I use for a code review agent?',
+          'How do I build a GitHub agent with eve?',
+          'How do I build a PR review bot that responds to @mentions?',
+          'When should I use createGithubAgent vs raw createGithubTools?',
         ],
       },
       {
-        category: 'Agents',
+        category: 'Go to production',
         items: [
-          'How do I create a reusable GitHub agent?',
-          'What is the difference between createGithubTools and createGithubAgent?',
-          'How do I add custom system instructions to an agent?',
+          'How do I make my agent survive crashes and timeouts?',
+          'How do I stream a durable agent to a chat UI?',
+          'How do I reduce token usage when the model sees 42 tools?',
         ],
       },
       {
-        category: 'Safety',
+        category: 'Safety & auth',
         items: [
-          'How does approval control work?',
-          'What token permissions do I need?',
-          'How do I run the SDK in read-only mode?',
+          'How do I require human approval before the agent merges a PR?',
+          'Can I approve a write once and auto-allow it for the rest of the session?',
+          'How do I use Vercel Connect instead of a personal access token?',
+        ],
+      },
+      {
+        category: 'Customize',
+        items: [
+          'How do I credit my bot as co-author on commits?',
+          'How do I override a tool description or approval per tool?',
+          'How do I cherry-pick only the tools I need?',
         ],
       },
     ],
@@ -57,23 +66,103 @@ export default defineAppConfig({
       primary: 'neutral',
       neutral: 'neutral',
     },
+    header: {
+      slots: {
+        root: 'bg-default border-b border-default/50 h-(--ui-header-height) sticky top-0 z-50',
+      },
+    },
+    pageHeader: {
+      slots: {
+        root: 'relative py-10 sm:py-12',
+        title: 'text-4xl sm:text-5xl font-normal tracking-tight text-pretty text-highlighted',
+        description: 'text-lg font-normal text-toned mt-4',
+        headline: 'text-sm text-muted font-normal mb-3',
+      },
+    },
+    contentToc: {
+      defaultVariants: {
+        highlightVariant: 'straight',
+      },
+      slots: {
+        trigger: 'text-sm font-normal text-highlighted',
+        link: 'text-sm font-normal py-1',
+      },
+      variants: {
+        active: {
+          false: {
+            link: 'text-muted hover:text-highlighted',
+          },
+        },
+      },
+    },
+    contentNavigation: {
+      defaultVariants: {
+        variant: 'link',
+        color: 'neutral',
+      },
+      slots: {
+        trigger: 'font-normal',
+        link: 'font-normal',
+      },
+      variants: {
+        active: {
+          false: {
+            link: 'text-toned hover:text-highlighted',
+          },
+        },
+      },
+    },
+    contentSurround: {
+      slots: {
+        linkTitle: 'font-normal text-[15px] text-highlighted mb-1 truncate',
+      },
+    },
     prose: {
+      h1: {
+        slots: {
+          base: 'font-normal',
+        },
+      },
+      h2: {
+        slots: {
+          base: 'font-normal',
+        },
+      },
+      h3: {
+        slots: {
+          base: 'font-normal',
+        },
+      },
+      h4: {
+        slots: {
+          base: 'font-normal',
+        },
+      },
+      a: {
+        base: 'font-normal',
+      },
+      li: {
+        base: 'font-normal',
+      },
+      th: {
+        base: 'font-normal',
+      },
       prompt: {
         slots: {
-          root: 'relative flex flex-wrap items-center gap-2 border border-default bg-elevated/50 rounded-sm px-4 py-3 my-5 last:mb-0',
+          root: 'relative flex flex-wrap items-center gap-2 border border-default bg-muted rounded-lg px-4 py-3 my-5 last:mb-0',
         },
       },
       p: {
         slots: {
-          root: 'text-base/7 text-toned',
+          root: 'text-base/7 font-normal text-toned',
         },
       },
     },
     pageFeature: {
       slots: {
         root: 'relative rounded-sm py-2',
-        title: 'text-base/7 text-pretty font-semibold text-highlighted',
-        description: 'mt-1 text-[15px]/7 text-pretty text-muted',
+        title: 'text-base/7 text-pretty font-normal text-highlighted',
+        description: 'mt-1 text-[15px]/7 font-normal text-pretty text-muted',
       },
       variants: {
         orientation: {
@@ -91,15 +180,27 @@ export default defineAppConfig({
         links: [
           { label: 'Introduction', to: '/getting-started/introduction' },
           { label: 'Installation', to: '/getting-started/installation' },
+          { label: 'Quick Start', to: '/getting-started/quick-start' },
           { label: 'Agent Skills', to: '/getting-started/agent-skills' },
+        ],
+      },
+      {
+        title: 'Frameworks',
+        links: [
+          { label: 'eve', to: '/frameworks/eve' },
+          { label: 'AI SDK', to: '/frameworks/ai-sdk' },
+          { label: 'Vercel Workflow', to: '/frameworks/vercel-workflow' },
+          { label: 'Chat SDK', to: '/frameworks/chat-sdk' },
         ],
       },
       {
         title: 'Guides',
         links: [
-          { label: 'Quick Start', to: '/guide/quick-start' },
           { label: 'Presets', to: '/guide/presets' },
-          { label: 'Durable Workflows', to: '/guide/durable-workflows' },
+          { label: 'Approval Control', to: '/guide/approval-control' },
+          { label: 'Commit Attribution', to: '/guide/commit-attribution' },
+          { label: 'Tokens & Auth', to: '/guide/tokens-and-auth' },
+          { label: 'Examples', to: '/guide/examples' },
         ],
       },
       {
@@ -107,6 +208,14 @@ export default defineAppConfig({
         links: [
           { label: 'Tools Catalog', to: '/api/tools-catalog' },
           { label: 'API Reference', to: '/api/reference' },
+        ],
+      },
+      {
+        title: 'Resources',
+        links: [
+          { label: 'GitHub', to: 'https://github.com/vercel-labs/github-tools' },
+          { label: 'npm', to: 'https://www.npmjs.com/package/@github-tools/sdk' },
+          { label: 'Agent Skills', to: '/getting-started/agent-skills' },
         ],
       },
     ],

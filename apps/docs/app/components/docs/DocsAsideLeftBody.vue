@@ -13,8 +13,8 @@ const contentNavVariants = useUIConfig('contentNavigation')
     :color="contentNavVariants.color"
     :navigation="sidebarNavigation"
     :ui="{
-      link: 'text-base/6',
-      trigger: 'text-base/6 font-semibold text-highlighted',
+      link: 'text-sm/6 font-normal',
+      trigger: 'text-sm/6 font-normal text-highlighted',
     }"
   />
 </template>
