@@ -15,6 +15,24 @@ withDefaults(
 
 const FALLBACK_DESCRIPTION =
   '42 typed GitHub tools with presets, human approval, and durable execution — for the AI SDK, eve, Vercel Workflow, and Chat SDK.'
+
+function ogTitleLines(raw: string): string[] {
+  const title = !raw ? 'Documentation' : (raw.length > 68 ? `${raw.slice(0, 65)}…` : raw)
+
+  const withBreak = title.match(/^(.+?)\s+with\s+(.+)$/i)
+  if (withBreak?.[1] && withBreak[2] && withBreak[1].length >= 8)
+    return [`${withBreak[1]} with`, withBreak[2]]
+
+  if (title.length <= 34)
+    return [title]
+
+  const words = title.split(/\s+/)
+  if (words.length < 3)
+    return [title]
+
+  const mid = Math.ceil(words.length / 2)
+  return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')]
+}
 </script>
 
 <template>
@@ -68,8 +86,8 @@ const FALLBACK_DESCRIPTION =
         <span style="font-size: 18px; font-weight: 400; letter-spacing: -0.01em; color: rgba(255,255,255,0.58);">{{ headline }}</span>
       </div>
 
-      <h1 style="font-size: 76px; font-weight: 400; letter-spacing: -0.04em; line-height: 1.05; margin: 0 0 28px; max-width: 1080px; width: 100%; color: #ffffff;">
-        {{ !title ? 'Documentation' : (title.length > 68 ? title.slice(0, 65) + '…' : title) }}
+      <h1 style="display: flex; flex-direction: column; font-size: 76px; font-weight: 400; letter-spacing: -0.04em; line-height: 1.05; margin: 0 0 28px; max-width: 1080px; width: 100%; color: #ffffff;">
+        <span v-for="(line, index) in ogTitleLines(title)" :key="index">{{ line }}</span>
       </h1>
 
       <p style="font-size: 30px; font-weight: 400; line-height: 1.45; margin: 0; max-width: 920px; width: 100%; color: rgba(255,255,255,0.62);">
