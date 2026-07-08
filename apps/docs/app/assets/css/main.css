@@ -14,7 +14,7 @@ html {
   overscroll-behavior-y: none;
 
   /* Geist light — https://vercel.com/design.md */
-  --ui-container: 75rem;
+  --ui-container: 91.5rem;
   --ui-radius: 0.175rem;
   --ui-primary: #171717;
 
