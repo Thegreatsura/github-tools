@@ -3,6 +3,10 @@
 GitHub tools for [eve](https://eve.dev), packaged as a mountable
 [eve extension](https://eve.dev/docs/extensions).
 
+This is the direction the eve integration is moving toward and will become the recommended way
+to add GitHub tools to an eve agent. The direct `@github-tools/sdk/eve` import remains supported
+in the meantime.
+
 See the runnable consumer at [`examples/eve-extension-agent`](../../examples/eve-extension-agent).
 
 ## Structure
