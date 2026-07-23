@@ -19,7 +19,7 @@
     "workflow": "pnpm --filter @github-tools/chat exec workflow web",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=@github-tools/sdk && changeset publish"
+    "release": "turbo run build --filter=@github-tools/sdk --filter=@github-tools/eve-extension && changeset publish"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",

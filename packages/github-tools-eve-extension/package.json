@@ -1,8 +1,17 @@
 {
   "name": "@github-tools/eve-extension",
   "version": "0.0.0",
-  "private": true,
   "description": "GitHub tools for eve, distributed as a mountable eve extension (https://eve.dev/docs/extensions)",
+  "author": "HugoRCD <hugo.richard@vercel.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vercel-labs/github-tools.git",
+    "directory": "packages/github-tools-eve-extension"
+  },
+  "homepage": "https://github-tools.com",
+  "bugs": {
+    "url": "https://github.com/vercel-labs/github-tools/issues"
+  },
   "type": "module",
   "engines": {
     "node": "24.x"
@@ -13,6 +22,16 @@
       "dist": "./dist/extension"
     }
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./tools": {
+      "types": "./dist/tools/index.d.ts",
+      "default": "./dist/tools/index.mjs"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -20,6 +39,15 @@
     "build": "eve extension build",
     "typecheck": "tsc --noEmit"
   },
+  "keywords": [
+    "ai",
+    "eve",
+    "eve-extension",
+    "github",
+    "tools",
+    "agent"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@github-tools/sdk": "workspace:*",
     "zod": "^4.3.6"
@@ -39,14 +67,8 @@
     "eve": "^0.26.2",
     "typescript": "^6.0.3"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.mjs"
-    },
-    "./tools": {
-      "types": "./dist/tools/index.d.ts",
-      "default": "./dist/tools/index.mjs"
-    }
+  "packageManager": "pnpm@10.30.2",
+  "publishConfig": {
+    "access": "public"
   }
 }
