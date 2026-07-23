@@ -52,5 +52,5 @@ jobs:
           node-version: latest
       - run: corepack enable
       - run: pnpm install
-      - run: pnpx pkg-pr-new publish --compact --no-template --pnpm './packages/github-tools'
+      - run: pnpx pkg-pr-new publish --compact --no-template --pnpm './packages/github-tools' './packages/github-tools-eve-extension'
         continue-on-error: true
