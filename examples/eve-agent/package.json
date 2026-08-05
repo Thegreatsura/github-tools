@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "@github-tools/sdk": "workspace:*",
-    "@vercel/connect": "^0.4.2",
-    "ai": "^7.0.0",
-    "eve": "^0.26.2",
+    "@vercel/connect": "^0.6.1",
+    "ai": "^7.0.52",
+    "eve": "^0.30.6",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "microsandbox": "^0.6.3"
+    "microsandbox": "^0.6.8"
   }
 }

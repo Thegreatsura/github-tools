@@ -12,7 +12,7 @@
     "@chat-adapter/state-memory": "latest",
     "@github-tools/sdk": "workspace:*",
     "@workflow/ai": "latest",
-    "ai": "^6.0.175",
+    "ai": "^6.0.242",
     "chat": "latest",
     "evlog": "latest",
     "workflow": "latest",
@@ -21,6 +21,6 @@
   "devDependencies": {
     "nitro": "latest",
     "typescript": "^6.0.3",
-    "vite": "^8.0.11"
+    "vite": "^8.2.0"
   }
 }

@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@github-tools/eve-extension": "workspace:*",
-    "ai": "^7.0.0",
-    "eve": "^0.26.2",
+    "ai": "^7.0.52",
+    "eve": "^0.30.6",
     "zod": "^4.3.6"
   }
 }
