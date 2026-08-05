@@ -42,6 +42,18 @@ export type EveGithubToolsOptions = {
    */
   preset?: GithubToolPreset | GithubToolPreset[]
   /**
+   * Hand-pick an exact set of tool names, either standalone (no `preset`) or
+   * additively on top of a `preset` — the effective set is the union of both.
+   * To remove specific tools from a `preset` (or from `include`), use `exclude`.
+   */
+  include?: GithubToolName[]
+  /**
+   * Remove specific tool names from the resolved set, applied after `preset`
+   * and `include` are combined. Useful for taking a `preset` and dropping a
+   * couple of tools you don't want exposed.
+   */
+  exclude?: GithubToolName[]
+  /**
    * Control whether write operations require user approval before execution.
    *
    * @see {@link EveApprovalConfig} for global and per-tool options.
@@ -61,4 +73,4 @@ export type EveGithubToolsOptions = {
   coAuthors?: CommitIdentity[]
 }
 
-export type EveToolFactoryOptions = Omit<EveGithubToolsOptions, 'preset'>
+export type EveToolFactoryOptions = Omit<EveGithubToolsOptions, 'preset' | 'include' | 'exclude'>

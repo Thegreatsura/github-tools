@@ -60,6 +60,58 @@ describe('createGithubTools eve integration', () => {
     coreSpy.mockRestore()
   })
 
+  it('restricts to an exact allow-list via `include`', () => {
+    const tools = buildEveToolMap({
+      token: 'ghp_test',
+      include: ['getRepository', 'mergePullRequest'],
+    })
+
+    expect(Object.keys(tools).sort()).toEqual(['getRepository', 'mergePullRequest'])
+  })
+
+  it('unions `preset` and `include` when both are provided', () => {
+    const tools = buildEveToolMap({
+      token: 'ghp_test',
+      preset: 'code-review',
+      // mergePullRequest is not part of the code-review preset — `include` adds it.
+      include: ['mergePullRequest'],
+    })
+
+    expect(Object.keys(tools).sort()).toEqual([...PRESET_TOOLS['code-review'], 'mergePullRequest'].sort())
+  })
+
+  it('removes tools via `exclude`, applied after `preset` + `include`', () => {
+    const tools = buildEveToolMap({
+      token: 'ghp_test',
+      preset: 'code-review',
+      include: ['mergePullRequest'],
+      exclude: ['getBlame', 'mergePullRequest'],
+    })
+
+    const expected = [...PRESET_TOOLS['code-review'], 'mergePullRequest']
+      .filter(name => !['getBlame', 'mergePullRequest'].includes(name))
+
+    expect(Object.keys(tools).sort()).toEqual(expected.sort())
+  })
+
+  it('resolves the same `include` allow-list via listResolvedEveToolNames', () => {
+    expect(listResolvedEveToolNames({ include: ['getRepository', 'mergePullRequest'] }).sort())
+      .toEqual(['getRepository', 'mergePullRequest'])
+  })
+
+  it('unions preset + include and applies exclude via listResolvedEveToolNames', () => {
+    const names = listResolvedEveToolNames({
+      preset: 'code-review',
+      include: ['mergePullRequest'],
+      exclude: ['getBlame', 'mergePullRequest'],
+    })
+
+    const expected = [...PRESET_TOOLS['code-review'], 'mergePullRequest']
+      .filter(name => !['getBlame', 'mergePullRequest'].includes(name))
+
+    expect(names.sort()).toEqual(expected.sort())
+  })
+
   it('maps approval config onto write tools in the dynamic set', async () => {
     const tools = buildEveToolMap({
       token: 'ghp_test',

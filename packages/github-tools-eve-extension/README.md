@@ -9,9 +9,9 @@
 
 GitHub tools for [eve](https://eve.dev), packaged as a mountable [eve extension](https://eve.dev/docs/extensions) — a single `pnpm add` and a one-line mount, with no CLI setup. Built on top of [`@github-tools/sdk/eve`](../github-tools#eve).
 
-Docs: **[github-tools.com/frameworks/eve](https://github-tools.com/frameworks/eve#eve-extension)**
+Docs: **[github-tools.com/frameworks/eve-extension](https://github-tools.com/frameworks/eve-extension)**
 
-This is the recommended direction for adding GitHub tools to an eve agent going forward. The direct [`@github-tools/sdk/eve`](../github-tools#eve) import remains supported for agents that prefer importing tools directly into `agent/tools/`.
+This is **the recommended way** to add GitHub tools to an eve agent. The direct [`@github-tools/sdk/eve`](../github-tools#eve) import is **deprecated** in its favor — it keeps working for agents that already import tools directly into `agent/tools/`, but new agents should mount this extension instead.
 
 ## Installation
 
@@ -53,15 +53,32 @@ export default githubExtension({
 
 Tools are exposed to the model as `<namespace>__<toolName>`, where `<namespace>` comes from the mount file's name — `agent/extensions/github.ts` yields `github__listPullRequests`, `github__createIssue`, and so on.
 
+To hand-pick an exact set of tools instead of a preset, pass `include`:
+
+```ts
+export default githubExtension({
+  include: ['getRepository', 'listPullRequests', 'mergePullRequest'],
+})
+```
+
+`include` **adds** to `preset` (union) — use it to pull in a tool a preset is missing. `exclude` **removes** tool names from the resolved `preset` + `include` set — use it to drop a couple of tools from a larger preset:
+
+```ts
+export default githubExtension({
+  preset: 'maintainer',
+  exclude: ['createRepository', 'deleteGist'],
+})
+```
+
 See the runnable consumer at [`examples/eve-extension-agent`](../../examples/eve-extension-agent).
 
 ## Structure
 
 ```
 extension/
-  extension.ts        # defineExtension() config schema (token, connector, preset, requireApproval, ...)
+  extension.ts        # defineExtension() config schema (token, connector, preset, include, exclude, requireApproval, ...)
   tools/
-    github.ts          # defineDynamic() returning buildEveToolMap(...) filtered by preset
+    github.ts          # defineDynamic() returning buildEveToolMap(...) scoped by preset/include/exclude
 ```
 
 ## Config schema (`extension/extension.ts`)
@@ -72,6 +89,8 @@ extension/
 | `connector` | `string \| (() => string \| Promise<string>)` (optional) | Vercel Connect connector name, or a resolver to pick one dynamically (e.g. per environment/tenant); takes priority over `token` |
 | `connect` | `record?` | Passed through to `getToken` when `connector` is set |
 | `preset` | preset name or array | `code-review`, `issue-triage`, `ci-ops`, `repo-explorer`, `maintainer` |
+| `include` | `string[]?` | Tool names to add on top of `preset` (union), or the full set standalone |
+| `exclude` | `string[]?` | Tool names to remove from the resolved `preset` + `include` set |
 | `requireApproval` | `boolean \| record` | Global or per-tool; per-tool values may be predicate functions |
 | `overrides` | `record` | Per-tool `description` / `approval` / `toModelOutput` / `outputSchema` |
 | `author` / `committer` / `coAuthors` | commit identity | Attribution for commit-creating tools |
