@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { createOctokit } from '../client'
+import { applyDetailBody, detailSchema, type DetailLevel } from './detail'
 import { fetchAllPages, maxPagesSchema } from './pagination'
 
 export const listReleasesInputSchema = z.object({
@@ -7,11 +8,12 @@ export const listReleasesInputSchema = z.object({
   repo: z.string().describe('Repository name'),
   perPage: z.number().optional().default(30).describe('Number of results to return per page (max 100)'),
   maxPages: maxPagesSchema,
+  detail: detailSchema,
 })
 
-export const listReleasesDescription = 'List releases for a GitHub repository, newest first (includes drafts and prereleases)'
+export const listReleasesDescription = 'List releases for a GitHub repository, newest first (includes drafts and prereleases). Bodies truncated by default (detail: summary)'
 
-export async function listReleasesCore({ token, owner, repo, perPage, maxPages }: { token: string, owner: string, repo: string, perPage: number, maxPages?: number }) {
+export async function listReleasesCore({ token, owner, repo, perPage, maxPages, detail = 'summary' }: { token: string, owner: string, repo: string, perPage: number, maxPages?: number, detail?: DetailLevel }) {
   const octokit = createOctokit(token)
   const releases = await fetchAllPages(async page => {
     const { data } = await octokit.rest.repos.listReleases({ owner, repo, per_page: perPage, page })
@@ -21,7 +23,7 @@ export async function listReleasesCore({ token, owner, repo, perPage, maxPages }
     id: release.id,
     tagName: release.tag_name,
     name: release.name,
-    body: release.body,
+    body: applyDetailBody(release.body, detail),
     draft: release.draft,
     prerelease: release.prerelease,
     url: release.html_url,
@@ -34,18 +36,19 @@ export async function listReleasesCore({ token, owner, repo, perPage, maxPages }
 export const getLatestReleaseInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
+  detail: detailSchema,
 })
 
-export const getLatestReleaseDescription = 'Get the latest published release for a GitHub repository (excludes drafts and prereleases)'
+export const getLatestReleaseDescription = 'Get the latest published release for a GitHub repository (excludes drafts and prereleases). Body truncated by default (detail: summary)'
 
-export async function getLatestReleaseCore({ token, owner, repo }: { token: string, owner: string, repo: string }) {
+export async function getLatestReleaseCore({ token, owner, repo, detail = 'summary' }: { token: string, owner: string, repo: string, detail?: DetailLevel }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.repos.getLatestRelease({ owner, repo })
   return {
     id: data.id,
     tagName: data.tag_name,
     name: data.name,
-    body: data.body,
+    body: applyDetailBody(data.body, detail),
     url: data.html_url,
     author: data.author?.login,
     createdAt: data.created_at,
@@ -63,18 +66,19 @@ export const getReleaseInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
   releaseId: z.number().describe('Release ID (from listReleases or getLatestRelease)'),
+  detail: detailSchema,
 })
 
-export const getReleaseDescription = 'Get a specific release by ID, including its assets'
+export const getReleaseDescription = 'Get a specific release by ID, including its assets. Body truncated by default (detail: summary)'
 
-export async function getReleaseCore({ token, owner, repo, releaseId }: { token: string, owner: string, repo: string, releaseId: number }) {
+export async function getReleaseCore({ token, owner, repo, releaseId, detail = 'summary' }: { token: string, owner: string, repo: string, releaseId: number, detail?: DetailLevel }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.repos.getRelease({ owner, repo, release_id: releaseId })
   return {
     id: data.id,
     tagName: data.tag_name,
     name: data.name,
-    body: data.body,
+    body: applyDetailBody(data.body, detail),
     draft: data.draft,
     prerelease: data.prerelease,
     url: data.html_url,

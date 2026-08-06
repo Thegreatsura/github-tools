@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { createOctokit } from '../client'
+import { applyDetailBody, detailSchema, type DetailLevel } from './detail'
 import { fetchAllPages, maxPagesSchema } from './pagination'
 
 export const listIssuesInputSchema = z.object({
@@ -44,17 +45,18 @@ export const getIssueInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
   issueNumber: z.number().describe('Issue number'),
+  detail: detailSchema,
 })
 
-export const getIssueDescription = 'Get detailed information about a specific issue'
+export const getIssueDescription = 'Get detailed information about a specific issue. Body is truncated by default (detail: summary) — set detail full for the complete description'
 
-export async function getIssueCore({ token, owner, repo, issueNumber }: { token: string, owner: string, repo: string, issueNumber: number }) {
+export async function getIssueCore({ token, owner, repo, issueNumber, detail = 'summary' }: { token: string, owner: string, repo: string, issueNumber: number, detail?: DetailLevel }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.issues.get({ owner, repo, issue_number: issueNumber })
   return {
     number: data.number,
     title: data.title,
-    body: data.body,
+    body: applyDetailBody(data.body, detail),
     state: data.state,
     url: data.html_url,
     author: data.user?.login,
@@ -65,6 +67,30 @@ export async function getIssueCore({ token, owner, repo, issueNumber }: { token:
     updatedAt: data.updated_at,
     closedAt: data.closed_at,
   }
+}
+
+export const listIssueCommentsInputSchema = z.object({
+  owner: z.string().describe('Repository owner'),
+  repo: z.string().describe('Repository name'),
+  issueNumber: z.number().describe('Issue number'),
+  perPage: z.number().optional().default(30).describe('Number of comments to return (max 100)'),
+  page: z.number().optional().default(1).describe('Page number for pagination'),
+  detail: detailSchema,
+})
+
+export const listIssueCommentsDescription = 'List comments on a GitHub issue. Bodies are truncated by default (detail: summary)'
+
+export async function listIssueCommentsCore({ token, owner, repo, issueNumber, perPage, page, detail = 'summary' }: { token: string, owner: string, repo: string, issueNumber: number, perPage: number, page: number, detail?: DetailLevel }) {
+  const octokit = createOctokit(token)
+  const { data } = await octokit.rest.issues.listComments({ owner, repo, issue_number: issueNumber, per_page: perPage, page })
+  return data.map(comment => ({
+    id: comment.id,
+    url: comment.html_url,
+    body: applyDetailBody(comment.body, detail),
+    author: comment.user?.login,
+    createdAt: comment.created_at,
+    updatedAt: comment.updated_at,
+  }))
 }
 
 export const createIssueInputSchema = z.object({

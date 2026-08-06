@@ -7,7 +7,7 @@ export const GITHUB_TOOL_NAMES = {
   getRepository: 'getRepository',
   /** List branches in a GitHub repository. */
   listBranches: 'listBranches',
-  /** Get the content of a file from a GitHub repository. */
+  /** Get the content of a file from a GitHub repository. Prefer startLine/endLine or maxLines for large files. */
   getFileContent: 'getFileContent',
   /** List the file and directory structure of a repository at a given ref. */
   getRepositoryTree: 'getRepositoryTree',
@@ -21,7 +21,7 @@ export const GITHUB_TOOL_NAMES = {
   createOrUpdateFile: 'createOrUpdateFile',
   /** List pull requests for a GitHub repository. */
   listPullRequests: 'listPullRequests',
-  /** Get detailed information about a specific pull request. */
+  /** Get detailed information about a specific pull request. Body truncated by default (detail: summary). */
   getPullRequest: 'getPullRequest',
   /** Create a new pull request in a GitHub repository. Requires approval by default. */
   createPullRequest: 'createPullRequest',
@@ -29,7 +29,7 @@ export const GITHUB_TOOL_NAMES = {
   mergePullRequest: 'mergePullRequest',
   /** Add a comment to a pull request. Requires approval by default. */
   addPullRequestComment: 'addPullRequestComment',
-  /** List files changed in a pull request, including diff status and patch content. */
+  /** List files changed in a pull request with status and stats. Patches omitted by default — set includePatch true for diffs. */
   listPullRequestFiles: 'listPullRequestFiles',
   /** List reviews on a pull request (approvals, change requests, and comments). */
   listPullRequestReviews: 'listPullRequestReviews',
@@ -37,10 +37,14 @@ export const GITHUB_TOOL_NAMES = {
   createPullRequestReview: 'createPullRequestReview',
   /** Request reviews from users or teams on a pull request. Requires approval by default. */
   requestReviewers: 'requestReviewers',
+  /** Fetch pull request details plus files, reviews, and optional CI checks in one call. */
+  getPullRequestContext: 'getPullRequestContext',
   /** List issues for a GitHub repository (excludes pull requests). */
   listIssues: 'listIssues',
-  /** Get detailed information about a specific issue. */
+  /** Get detailed information about a specific issue. Body truncated by default (detail: summary). */
   getIssue: 'getIssue',
+  /** Fetch an issue plus available labels and recent comments in one call. */
+  getIssueContext: 'getIssueContext',
   /** Create a new issue in a GitHub repository. Requires approval by default. */
   createIssue: 'createIssue',
   /** Add a comment to a GitHub issue. Requires approval by default. */
@@ -63,11 +67,11 @@ export const GITHUB_TOOL_NAMES = {
   searchRepositories: 'searchRepositories',
   /** List commits for a GitHub repository. Filter by file path to see commits that touched a file. For line-by-line attribution at a given ref, use getBlame instead. */
   listCommits: 'listCommits',
-  /** Get detailed information about a specific commit, including the list of files changed with additions and deletions. */
+  /** Get detailed information about a specific commit, including the list of files changed. Patches omitted by default. */
   getCommit: 'getCommit',
   /** Line-level git blame for a file at a commit-like ref (branch, tag, or SHA). Returns contiguous ranges mapping lines to the commits that last modified them. */
   getBlame: 'getBlame',
-  /** Compare two branches, tags, or commits — shows ahead/behind counts, the commits in between, and the files that differ. */
+  /** Compare two branches, tags, or commits — ahead/behind counts, commits in between, and differing files. Patches omitted by default. */
   compareCommits: 'compareCommits',
   /** List gists for the authenticated user or a specific user. */
   listGists: 'listGists',
@@ -101,12 +105,16 @@ export const GITHUB_TOOL_NAMES = {
   listCheckRuns: 'listCheckRuns',
   /** Get the combined commit status (Statuses API — legacy CI integrations) for a commit, branch, or tag. */
   getCombinedStatus: 'getCombinedStatus',
+  /** Diagnose CI failures for a ref — combined status, failing checks, and failed workflow jobs in one call. */
+  getCiFailureContext: 'getCiFailureContext',
   /** List releases for a GitHub repository, newest first (includes drafts and prereleases). */
   listReleases: 'listReleases',
-  /** Get the latest published release for a GitHub repository (excludes drafts and prereleases). */
+  /** Get the latest published release for a GitHub repository (excludes drafts and prereleases). Body truncated by default. */
   getLatestRelease: 'getLatestRelease',
-  /** Get a specific release by ID, including its assets. */
+  /** Get a specific release by ID, including its assets. Body truncated by default. */
   getRelease: 'getRelease',
+  /** Fetch a release plus the previous release and tag comparison in one call. */
+  getReleaseContext: 'getReleaseContext',
   /** Create a new release (and its tag if needed) in a GitHub repository. Requires approval by default. */
   createRelease: 'createRelease',
 } as const

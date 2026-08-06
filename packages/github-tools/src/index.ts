@@ -8,7 +8,9 @@ import { listGists, getGist, listGistComments, createGist, updateGist, deleteGis
 import { listWorkflows, listWorkflowRuns, getWorkflowRun, listWorkflowJobs, triggerWorkflow, cancelWorkflowRun, rerunWorkflowRun } from './tools/workflows'
 import { listCheckRuns, getCombinedStatus } from './tools/checks'
 import { listReleases, getLatestRelease, getRelease, createRelease } from './tools/releases'
+import { getPullRequestContext, getIssueContext, getReleaseContext, getCiFailureContext } from './tools/bundles'
 import { resolveAiSdkApproval } from './core/approval'
+import { bindToolsContext } from './core/context'
 import { resolvePresetTools, type CombinedPresetToolNames, type GithubToolPreset, type PresetToolName } from './core/presets'
 import { type GithubToolName } from './core/tool-names'
 import { type AllGithubTools, type GithubToolsBaseOptions } from './core/tool-types'
@@ -17,6 +19,7 @@ import type { GithubWriteToolName } from './core/write-tools'
 
 export type { GithubWriteToolName } from './core/write-tools'
 export type { ApprovalConfig } from './core/approval'
+export type { GithubToolsContext } from './core/context'
 export type { GithubToolPreset, PresetToolName, CombinedPresetToolNames } from './core/presets'
 export type { GithubToolName } from './core/tool-names'
 export type { AllGithubTools, GithubToolsForPreset, PickGithubTools } from './core/tool-types'
@@ -57,6 +60,7 @@ export function createGithubTools(options?: GithubToolsOptions): AllGithubTools 
  * Write operations require user approval by default.
  * Control this globally or per-tool via `requireApproval`.
  * Use `preset` to get only the tools you need.
+ * Pass `context` to default owner/repo/PR/issue/ref on tool inputs.
  *
  * @example
  * ```ts
@@ -65,6 +69,13 @@ export function createGithubTools(options?: GithubToolsOptions): AllGithubTools 
  *
  * // Code-review agent — only PR & commit tools
  * createGithubTools({ token, preset: 'code-review' })
+ *
+ * // Scoped to a repo / PR
+ * createGithubTools({
+ *   token,
+ *   preset: 'code-review',
+ *   context: { owner: 'vercel', repo: 'ai', pullNumber: 42 },
+ * })
  *
  * // Combine presets
  * createGithubTools({ token, preset: ['code-review', 'issue-triage'] })
@@ -85,6 +96,7 @@ export function createGithubTools({
   token,
   requireApproval = true,
   preset,
+  context,
   overrides,
   author,
   committer,
@@ -120,6 +132,8 @@ export function createGithubTools({
     listPullRequestReviews: listPullRequestReviews(resolveToken),
     createPullRequestReview: createPullRequestReview(resolveToken, approval('createPullRequestReview')),
     requestReviewers: requestReviewers(resolveToken, approval('requestReviewers')),
+    getPullRequestContext: getPullRequestContext(resolveToken),
+    getIssueContext: getIssueContext(resolveToken),
     createIssue: createIssue(resolveToken, approval('createIssue')),
     addIssueComment: addIssueComment(resolveToken, approval('addIssueComment')),
     closeIssue: closeIssue(resolveToken, approval('closeIssue')),
@@ -144,9 +158,11 @@ export function createGithubTools({
     rerunWorkflowRun: rerunWorkflowRun(resolveToken, approval('rerunWorkflowRun')),
     listCheckRuns: listCheckRuns(resolveToken),
     getCombinedStatus: getCombinedStatus(resolveToken),
+    getCiFailureContext: getCiFailureContext(resolveToken),
     listReleases: listReleases(resolveToken),
     getLatestRelease: getLatestRelease(resolveToken),
     getRelease: getRelease(resolveToken),
+    getReleaseContext: getReleaseContext(resolveToken),
     createRelease: createRelease(resolveToken, approval('createRelease')),
   } satisfies AllGithubTools
 
@@ -159,11 +175,13 @@ export function createGithubTools({
     }
   }
 
-  if (!allowed) return allTools
+  const scoped = bindToolsContext(allTools, context)
+
+  if (!allowed) return scoped
 
   return Object.fromEntries(
-    Object.entries(allTools).filter(([name]) => allowed.has(name as GithubToolName))
-  ) as Pick<typeof allTools, GithubToolName>
+    Object.entries(scoped).filter(([name]) => allowed.has(name as GithubToolName))
+  ) as Pick<typeof scoped, GithubToolName>
 }
 
 export type GithubTools = AllGithubTools & ToolSet
@@ -179,6 +197,7 @@ export { listGists, getGist, listGistComments, createGist, updateGist, deleteGis
 export { listWorkflows, listWorkflowRuns, getWorkflowRun, listWorkflowJobs, triggerWorkflow, cancelWorkflowRun, rerunWorkflowRun } from './tools/workflows'
 export { listCheckRuns, getCombinedStatus } from './tools/checks'
 export { listReleases, getLatestRelease, getRelease, createRelease } from './tools/releases'
+export { getPullRequestContext, getIssueContext, getReleaseContext, getCiFailureContext } from './tools/bundles'
 export type { CommitIdentity, CommitToolOptions, GithubTool, Octokit, ToolOptions, ToolOverrides } from './types'
 export type { GithubTokenInput } from './core/token'
 export { resolveGithubToken } from './core/token'

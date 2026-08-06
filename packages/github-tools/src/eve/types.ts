@@ -1,5 +1,6 @@
 import type { Approval, ToolModelOutput } from 'eve/tools'
 import type { z } from 'zod'
+import type { GithubToolsContext } from '../core/context'
 import type { GithubToolPreset } from '../core/presets'
 import type { GithubTokenInput } from '../core/token'
 import type { GithubToolName } from '../core/tool-names'
@@ -71,6 +72,11 @@ export type EveGithubToolsOptions = {
   committer?: CommitIdentity
   /** Co-authors to attribute on all commits created by tools. */
   coAuthors?: CommitIdentity[]
+  /**
+   * Default owner / repo / PR / issue / ref values.
+   * Softens matching tool input fields and fills them when omitted.
+   */
+  context?: GithubToolsContext
 }
 
 export type EveToolFactoryOptions = Omit<EveGithubToolsOptions, 'preset' | 'include' | 'exclude'>

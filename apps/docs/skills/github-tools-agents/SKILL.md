@@ -56,10 +56,10 @@ import { createGithubAgent } from '@github-tools/sdk'
 
 const agent = createGithubAgent({
   model: 'anthropic/claude-sonnet-4.6',
-  preset: 'issue-triage',
-  system: '…',
+  preset: 'code-review',
+  context: { owner: 'vercel', repo: 'ai', pullNumber: 42 },
 })
-await agent.generate({ prompt: '…' })
+await agent.generate({ prompt: 'Review this PR' })
 ```
 
 ### Durable agent (Vercel Workflow)
@@ -116,9 +116,13 @@ See `./references/eve-agents.md` and `/deprecated/eve`.
 | `ci-ops` | Actions workflows, runs, trigger/cancel/rerun |
 | `security-audit` | Vulnerability scanning, risk reporting |
 | `release-manager` | Changelog generation, release cutting |
-| `maintainer` | All 53 tools |
+| `maintainer` | All 57 tools |
 
 Array presets merge: `preset: ['code-review', 'issue-triage']`.
+
+## Working context
+
+Pass `context: { owner, repo, pullNumber?, issueNumber?, ref? }` to `createGithubTools` / `createGithubAgent` / `createDurableGithubAgent` to default those fields on tool inputs and inject them into the agent system prompt. Prefer composite tools (`getPullRequestContext`, `getIssueContext`, `getReleaseContext`, `getCiFailureContext`) for multi-part reads. Diff patches are omitted by default — set `includePatch: true` (optionally with `filenames`) when you need specific diffs. Bodies are truncated by default (`detail: 'summary'`) — pass `detail: 'full'` for complete text. Prefer `getFileContent` with `startLine`/`endLine` or `maxLines` for large files.
 
 ## Write safety
 

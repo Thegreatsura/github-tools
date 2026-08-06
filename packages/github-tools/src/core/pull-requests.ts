@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { createOctokit } from '../client'
 import type { CommitIdentity } from '../types'
+import { applyDetailBody, detailSchema, type DetailLevel } from './detail'
 import { fetchAllPages, maxPagesSchema } from './pagination'
 import { composeCommitMessage } from './repository'
 
@@ -38,21 +39,23 @@ export const getPullRequestInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
   pullNumber: z.number().describe('Pull request number'),
+  detail: detailSchema,
 })
 
-export const getPullRequestDescription = 'Get detailed information about a specific pull request'
+export const getPullRequestDescription = 'Get detailed information about a specific pull request. Body is truncated by default (detail: summary) — set detail full for the complete description'
 
-export async function getPullRequestCore({ token, owner, repo, pullNumber }: { token: string, owner: string, repo: string, pullNumber: number }) {
+export async function getPullRequestCore({ token, owner, repo, pullNumber, detail = 'summary' }: { token: string, owner: string, repo: string, pullNumber: number, detail?: DetailLevel }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.pulls.get({ owner, repo, pull_number: pullNumber })
   return {
     number: data.number,
     title: data.title,
-    body: data.body,
+    body: applyDetailBody(data.body, detail),
     state: data.state,
     url: data.html_url,
     author: data.user?.login,
     branch: data.head.ref,
+    headSha: data.head.sha,
     base: data.base.ref,
     draft: data.draft,
     merged: data.merged,
@@ -167,23 +170,28 @@ export const listPullRequestFilesInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
   pullNumber: z.number().describe('Pull request number'),
+  includePatch: z.boolean().optional().default(false).describe('Include diff patches (token-heavy). Prefer false for an overview, then set true with filenames to fetch specific diffs'),
+  filenames: z.array(z.string()).optional().describe('If set, only return these file paths (useful with includePatch: true for targeted diffs)'),
   perPage: z.number().optional().default(30).describe('Number of results to return (max 100)'),
   page: z.number().optional().default(1).describe('Page number for pagination'),
 })
 
-export const listPullRequestFilesDescription = 'List files changed in a pull request, including diff status and patch content'
+export const listPullRequestFilesDescription = 'List files changed in a pull request with status and stats. Patches are omitted by default — set includePatch true (optionally with filenames) to fetch diffs'
 
-export async function listPullRequestFilesCore({ token, owner, repo, pullNumber, perPage, page }: { token: string, owner: string, repo: string, pullNumber: number, perPage: number, page: number }) {
+export async function listPullRequestFilesCore({ token, owner, repo, pullNumber, includePatch, filenames, perPage, page }: { token: string, owner: string, repo: string, pullNumber: number, includePatch: boolean, filenames?: string[], perPage: number, page: number }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.pulls.listFiles({ owner, repo, pull_number: pullNumber, per_page: perPage, page })
-  return data.map(file => ({
-    filename: file.filename,
-    status: file.status,
-    additions: file.additions,
-    deletions: file.deletions,
-    changes: file.changes,
-    patch: file.patch,
-  }))
+  const filenameSet = filenames?.length ? new Set(filenames) : null
+  return data
+    .filter(file => !filenameSet || filenameSet.has(file.filename))
+    .map(file => ({
+      filename: file.filename,
+      status: file.status,
+      additions: file.additions,
+      deletions: file.deletions,
+      changes: file.changes,
+      ...includePatch && file.patch != null ? { patch: file.patch } : {},
+    }))
 }
 
 export const listPullRequestReviewsInputSchema = z.object({

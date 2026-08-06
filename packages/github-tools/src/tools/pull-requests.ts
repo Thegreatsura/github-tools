@@ -109,7 +109,7 @@ async function listPullRequestFilesStep(args: Parameters<typeof listPullRequestF
   return listPullRequestFilesCore(args)
 }
 
-/** List files changed in a pull request, including diff status and patch content. */
+/** List files changed in a pull request with status and stats. Patches omitted by default. */
 export const listPullRequestFiles = (token: GithubTokenInput): GithubTool =>
   tool({
     description: listPullRequestFilesDescription,

@@ -49,6 +49,7 @@ export function buildEveToolDefinition(
   const { defineTool } = getEveTools()
   const ctx: ToolBuildContext = {
     token: createGithubTokenResolver(options.token),
+    context: options.context,
     author: options.author,
     committer: options.committer,
     coAuthors: options.coAuthors,
@@ -76,6 +77,7 @@ export function buildEveToolMap(options: EveGithubToolsOptions = {}): EveToolMap
   const { defineTool } = getEveTools()
   const ctx: ToolBuildContext = {
     token: createGithubTokenResolver(options.token),
+    context: options.context,
     author: options.author,
     committer: options.committer,
     coAuthors: options.coAuthors,

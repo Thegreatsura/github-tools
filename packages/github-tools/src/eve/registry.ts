@@ -1,14 +1,17 @@
 import type { ToolModelOutput } from 'eve/tools'
 import type { z } from 'zod'
 import type { CommitIdentity } from '../types'
+import * as bundles from '../core/bundles'
 import * as checks from '../core/checks'
 import * as commits from '../core/commits'
+import { mergeContextArgs, softenContextSchema, type GithubToolsContext } from '../core/context'
 import * as gists from '../core/gists'
 import * as issues from '../core/issues'
 import {
   compareCommitsToModelOutput,
   getCommitToModelOutput,
   getFileContentToModelOutput,
+  getPullRequestContextToModelOutput,
   listPullRequestFilesToModelOutput,
 } from '../core/model-output'
 import * as pullRequests from '../core/pull-requests'
@@ -24,6 +27,7 @@ export { ALL_GITHUB_TOOL_NAMES } from '../core/tool-names'
 
 export type ToolBuildContext = {
   token: GithubTokenInput
+  context?: GithubToolsContext
   author?: CommitIdentity
   committer?: CommitIdentity
   coAuthors?: CommitIdentity[]
@@ -43,7 +47,12 @@ function withToken<T extends Record<string, unknown>>(
   ctx: ToolBuildContext,
   extra?: Record<string, unknown>,
 ) {
-  return async (input: Record<string, unknown>) => core({ token: await resolveGithubToken(ctx.token), ...extra, ...input } as T & { token: string })
+  return async (input: Record<string, unknown>) =>
+    core({
+      token: await resolveGithubToken(ctx.token),
+      ...extra,
+      ...mergeContextArgs(input, ctx.context ?? {}),
+    } as T & { token: string })
 }
 
 function modelOutputAdapter(
@@ -53,7 +62,7 @@ function modelOutputAdapter(
 }
 
 export function createToolRegistry(ctx: ToolBuildContext): ToolRegistryEntry[] {
-  return [
+  const entries: ToolRegistryEntry[] = [
     {
       name: 'getRepository',
       description: repository.getRepositoryDescription,
@@ -170,6 +179,19 @@ export function createToolRegistry(ctx: ToolBuildContext): ToolRegistryEntry[] {
       description: pullRequests.requestReviewersDescription,
       inputSchema: pullRequests.requestReviewersInputSchema,
       execute: withToken(pullRequests.requestReviewersCore, ctx),
+    },
+    {
+      name: 'getPullRequestContext',
+      description: bundles.getPullRequestContextDescription,
+      inputSchema: bundles.getPullRequestContextInputSchema,
+      execute: withToken(bundles.getPullRequestContextCore, ctx),
+      toModelOutput: modelOutputAdapter(getPullRequestContextToModelOutput),
+    },
+    {
+      name: 'getIssueContext',
+      description: bundles.getIssueContextDescription,
+      inputSchema: bundles.getIssueContextInputSchema,
+      execute: withToken(bundles.getIssueContextCore, ctx),
     },
     {
       name: 'listIssues',
@@ -380,6 +402,12 @@ export function createToolRegistry(ctx: ToolBuildContext): ToolRegistryEntry[] {
       execute: withToken(checks.getCombinedStatusCore, ctx),
     },
     {
+      name: 'getCiFailureContext',
+      description: bundles.getCiFailureContextDescription,
+      inputSchema: bundles.getCiFailureContextInputSchema,
+      execute: withToken(bundles.getCiFailureContextCore, ctx),
+    },
+    {
       name: 'listReleases',
       description: releases.listReleasesDescription,
       inputSchema: releases.listReleasesInputSchema,
@@ -398,6 +426,12 @@ export function createToolRegistry(ctx: ToolBuildContext): ToolRegistryEntry[] {
       execute: withToken(releases.getReleaseCore, ctx),
     },
     {
+      name: 'getReleaseContext',
+      description: bundles.getReleaseContextDescription,
+      inputSchema: bundles.getReleaseContextInputSchema,
+      execute: withToken(bundles.getReleaseContextCore, ctx),
+    },
+    {
       name: 'createRelease',
       writeTool: 'createRelease',
       description: releases.createReleaseDescription,
@@ -405,4 +439,11 @@ export function createToolRegistry(ctx: ToolBuildContext): ToolRegistryEntry[] {
       execute: withToken(releases.createReleaseCore, ctx),
     },
   ]
+
+  if (!ctx.context) return entries
+
+  return entries.map(entry => ({
+    ...entry,
+    inputSchema: softenContextSchema(entry.inputSchema, ctx.context!),
+  }))
 }

@@ -93,13 +93,13 @@ createGithubTools({ token, preset: ['code-review', 'issue-triage'] })
 
 | Preset | Tools included |
 |---|---|
-| `code-review` | `getPullRequest`, `listPullRequests`, `listPullRequestFiles`, `listPullRequestReviews`, `getFileContent`, `listCommits`, `getCommit`, `getBlame`, `compareCommits`, `getRepository`, `listBranches`, `searchCode`, `listCheckRuns`, `getCombinedStatus`, `addPullRequestComment`, `createPullRequestReview`, `requestReviewers` |
-| `issue-triage` | `listIssues`, `getIssue`, `createIssue`, `addIssueComment`, `closeIssue`, `listLabels`, `addLabels`, `removeLabel`, `addAssignees`, `removeAssignees`, `getRepository`, `searchRepositories`, `searchCode` |
+| `code-review` | `getPullRequest`, `listPullRequests`, `listPullRequestFiles`, `listPullRequestReviews`, `getPullRequestContext`, `getFileContent`, `listCommits`, `getCommit`, `getBlame`, `compareCommits`, `getRepository`, `listBranches`, `searchCode`, `listCheckRuns`, `getCombinedStatus`, `addPullRequestComment`, `createPullRequestReview`, `requestReviewers` |
+| `issue-triage` | `listIssues`, `getIssue`, `getIssueContext`, `createIssue`, `addIssueComment`, `closeIssue`, `listLabels`, `addLabels`, `removeLabel`, `addAssignees`, `removeAssignees`, `getRepository`, `searchRepositories`, `searchCode` |
 | `repo-explorer` | All read-only tools including gists, workflows, checks/statuses, and releases (no write operations) |
-| `ci-ops` | `listWorkflows`, `listWorkflowRuns`, `getWorkflowRun`, `listWorkflowJobs`, `listCheckRuns`, `getCombinedStatus`, `triggerWorkflow`, `cancelWorkflowRun`, `rerunWorkflowRun`, `getRepository`, `listBranches`, `listCommits`, `getCommit` |
+| `ci-ops` | `listWorkflows`, `listWorkflowRuns`, `getWorkflowRun`, `listWorkflowJobs`, `listCheckRuns`, `getCombinedStatus`, `getCiFailureContext`, `triggerWorkflow`, `cancelWorkflowRun`, `rerunWorkflowRun`, `getRepository`, `listBranches`, `listCommits`, `getCommit` |
 | `security-audit` | Read-only exploration (`getFileContent`, `getRepositoryTree`, `searchCode`, `listCommits`, `getCommit`, `getBlame`, `compareCommits`), PR and CI visibility, plus `createIssue`, `addIssueComment`, `addLabels` to report findings (no destructive writes) |
-| `release-manager` | `listReleases`, `getLatestRelease`, `getRelease`, `createRelease`, `compareCommits`, `listCommits`, `getCommit`, `listWorkflowRuns`, `getWorkflowRun`, `listPullRequests`, `getPullRequest`, `getRepository`, `listBranches` |
-| `maintainer` | All 53 tools |
+| `release-manager` | `listReleases`, `getLatestRelease`, `getRelease`, `getReleaseContext`, `createRelease`, `compareCommits`, `listCommits`, `getCommit`, `listWorkflowRuns`, `getWorkflowRun`, `listPullRequests`, `getPullRequest`, `getRepository`, `listBranches` |
+| `maintainer` | All 57 tools |
 
 Omit `preset` to get all tools (same as `maintainer`). Full breakdown: [Tools Catalog](https://github-tools.com/api/tools-catalog).
 
@@ -451,7 +451,7 @@ List tools (`listCommits`, `listPullRequests`, `listIssues`, `listWorkflowRuns`,
 |---|---|
 | `getRepository` | Get repository metadata (stars, language, default branch, …) |
 | `listBranches` | List branches |
-| `getFileContent` | Read a file or directory listing |
+| `getFileContent` | Read a file or directory listing (prefer `startLine`/`endLine` or `maxLines` for large files) |
 | `getRepositoryTree` | List the file and directory structure at a given ref |
 | `createBranch` | Create a new branch from an existing branch or commit SHA |
 | `forkRepository` | Fork a repository to a user or organization |
@@ -463,9 +463,10 @@ List tools (`listCommits`, `listPullRequests`, `listIssues`, `listWorkflowRuns`,
 | Tool | Description |
 |---|---|
 | `listPullRequests` | List PRs filtered by state |
-| `getPullRequest` | Get a PR's full details (diff stats, body, merge status) |
-| `listPullRequestFiles` | List files changed in a PR with diff status and patches |
+| `getPullRequest` | Get a PR's full details (diff stats, body, merge status; body truncated by default) |
+| `listPullRequestFiles` | List files changed in a PR (patches omitted by default; set `includePatch` / `filenames` for diffs) |
 | `listPullRequestReviews` | List reviews on a PR (approvals, change requests, comments) |
+| `getPullRequestContext` | Fetch PR details plus files, reviews, and optional CI checks in one call |
 | `createPullRequest` | Open a new PR |
 | `mergePullRequest` | Merge a PR (merge, squash, or rebase) |
 | `addPullRequestComment` | Post a comment on a PR |
@@ -477,7 +478,8 @@ List tools (`listCommits`, `listPullRequests`, `listIssues`, `listWorkflowRuns`,
 | Tool | Description |
 |---|---|
 | `listIssues` | List issues filtered by state and labels |
-| `getIssue` | Get an issue's full details |
+| `getIssue` | Get an issue's details (body truncated by default; set `detail: full` for complete text) |
+| `getIssueContext` | Fetch an issue plus available labels and recent comments in one call |
 | `createIssue` | Open a new issue |
 | `addIssueComment` | Post a comment on an issue |
 | `closeIssue` | Close an issue (completed or not planned) |
@@ -517,14 +519,16 @@ List tools (`listCommits`, `listPullRequests`, `listIssues`, `listWorkflowRuns`,
 |---|---|
 | `listCheckRuns` | List check runs (Checks API: GitHub Actions and other CI providers) for a commit, branch, or tag |
 | `getCombinedStatus` | Get the combined commit status (Statuses API: legacy CI integrations) for a commit, branch, or tag |
+| `getCiFailureContext` | Diagnose CI failures for a ref — combined status, failing checks, and failed workflow jobs in one call |
 
 ### Releases
 
 | Tool | Description |
 |---|---|
 | `listReleases` | List releases, newest first (includes drafts and prereleases) |
-| `getLatestRelease` | Get the latest published release (excludes drafts and prereleases) |
+| `getLatestRelease` | Get the latest published release (body truncated by default; set `detail: full` for complete notes) |
 | `getRelease` | Get a specific release by ID, including its assets |
+| `getReleaseContext` | Fetch a release plus the previous release and tag comparison in one call |
 | `createRelease` | Create a new release (and its tag if needed) |
 
 ### Commits
@@ -554,19 +558,19 @@ Create one at **GitHub → Settings → Developer settings → Personal access t
 | Permission | Level | Required for |
 |---|---|---|
 | **Metadata** | Read-only | Always required (auto-included) |
-| **Contents** | Read-only | `getRepository`, `listBranches`, `getFileContent`, `getRepositoryTree`, `listCommits`, `getCommit`, `getBlame`, `compareCommits`, `listReleases`, `getLatestRelease`, `getRelease` |
+| **Contents** | Read-only | `getRepository`, `listBranches`, `getFileContent`, `getRepositoryTree`, `listCommits`, `getCommit`, `getBlame`, `compareCommits`, `listReleases`, `getLatestRelease`, `getRelease`, `getReleaseContext` |
 | **Contents** | Read and write | `createBranch`, `createOrUpdateFile`, `createRelease` |
 | **Administration** | Read and write | `forkRepository`, `createRepository` |
-| **Pull requests** | Read-only | `listPullRequests`, `getPullRequest`, `listPullRequestFiles`, `listPullRequestReviews` |
+| **Pull requests** | Read-only | `listPullRequests`, `getPullRequest`, `listPullRequestFiles`, `listPullRequestReviews`, `getPullRequestContext` |
 | **Pull requests** | Read and write | `createPullRequest`, `mergePullRequest`, `addPullRequestComment`, `createPullRequestReview`, `requestReviewers` |
-| **Issues** | Read-only | `listIssues`, `getIssue`, `listLabels` |
+| **Issues** | Read-only | `listIssues`, `getIssue`, `getIssueContext`, `listLabels` |
 | **Issues** | Read and write | `createIssue`, `addIssueComment`, `closeIssue`, `addLabels`, `removeLabel`, `addAssignees`, `removeAssignees` |
 | **Gists** | Read-only | `listGists`, `getGist`, `listGistComments` |
 | **Gists** | Read and write | `createGist`, `updateGist`, `deleteGist`, `createGistComment` |
-| **Actions** | Read-only | `listWorkflows`, `listWorkflowRuns`, `getWorkflowRun`, `listWorkflowJobs` |
+| **Actions** | Read-only | `listWorkflows`, `listWorkflowRuns`, `getWorkflowRun`, `listWorkflowJobs`, `getCiFailureContext` |
 | **Actions** | Read and write | `triggerWorkflow`, `cancelWorkflowRun`, `rerunWorkflowRun` |
-| **Checks** | Read-only | `listCheckRuns` |
-| **Commit statuses** | Read-only | `getCombinedStatus` |
+| **Checks** | Read-only | `listCheckRuns`, `getCiFailureContext` |
+| **Commit statuses** | Read-only | `getCombinedStatus`, `getCiFailureContext` |
 
 Search tools (`searchCode`, `searchRepositories`) work with any token.
 
@@ -588,6 +592,7 @@ type GithubToolsOptions = {
   token?: GithubTokenInput // defaults to process.env.GITHUB_TOKEN
   requireApproval?: boolean | Partial<Record<GithubWriteToolName, boolean>>
   preset?: GithubToolPreset | GithubToolPreset[]
+  context?: GithubToolsContext // default owner / repo / PR / issue / ref
 }
 
 type GithubTokenInput = string | (() => Promise<string>)
@@ -613,6 +618,7 @@ const reviewer = createGithubAgent({
   model: 'anthropic/claude-sonnet-4.6',
   token: process.env.GITHUB_TOKEN!,
   preset: 'code-review',
+  context: { owner: 'vercel', repo: 'ai', pullNumber: 42 },
 })
 
 // Add context to the built-in prompt
@@ -631,8 +637,8 @@ const custom = createGithubAgent({
 })
 
 // Use the agent
-const result = await reviewer.generate({ prompt: 'Review PR #42 on vercel/ai' })
-const stream = reviewer.stream({ prompt: 'Review PR #42 on vercel/ai' })
+const result = await reviewer.generate({ prompt: 'Review this PR' })
+const stream = reviewer.stream({ prompt: 'Review this PR' })
 ```
 
 | Option | Description |
@@ -640,8 +646,9 @@ const stream = reviewer.stream({ prompt: 'Review PR #42 on vercel/ai' })
 | `model` | Language model: string (`'anthropic/claude-sonnet-4.6'`) or provider instance |
 | `token` | GitHub token string or async provider |
 | `preset` | Optional preset or array of presets to scope tools |
+| `context` | Default owner / repo / pullNumber / issueNumber / ref for tools and the system prompt |
 | `requireApproval` | Approval config (same as `createGithubTools`) |
-| `instructions` | Replaces the built-in system prompt entirely |
+| `instructions` | Replaces the built-in system prompt entirely (`context` is still appended) |
 | `additionalInstructions` | Appended to the built-in system prompt |
 
 All other `ToolLoopAgent` options (`stopWhen`, `toolChoice`, `onStepFinish`, etc.) are passed through.

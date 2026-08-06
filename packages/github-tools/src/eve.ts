@@ -141,6 +141,20 @@ export const listPullRequestReviews = factory('listPullRequestReviews')
  */
 export const createPullRequestReview = factory('createPullRequestReview')
 /**
+ * Fetch pull request details plus files, reviews, and optional CI checks in one call.
+ *
+ * @deprecated Cherry-picking eve tool factories directly is deprecated — mount `@github-tools/eve-extension`
+ * instead. See https://github-tools.com/frameworks/eve-extension.
+ */
+export const getPullRequestContext = factory('getPullRequestContext')
+/**
+ * Fetch an issue plus available labels and recent comments in one call.
+ *
+ * @deprecated Cherry-picking eve tool factories directly is deprecated — mount `@github-tools/eve-extension`
+ * instead. See https://github-tools.com/frameworks/eve-extension.
+ */
+export const getIssueContext = factory('getIssueContext')
+/**
  * List issues for a GitHub repository (excludes pull requests).
  *
  * @deprecated Cherry-picking eve tool factories directly is deprecated — mount `@github-tools/eve-extension`
@@ -329,3 +343,17 @@ export const cancelWorkflowRun = factory('cancelWorkflowRun')
  * instead. See https://github-tools.com/frameworks/eve-extension.
  */
 export const rerunWorkflowRun = factory('rerunWorkflowRun')
+/**
+ * Diagnose CI failures for a ref — combined status, failing checks, and failed workflow jobs in one call.
+ *
+ * @deprecated Cherry-picking eve tool factories directly is deprecated — mount `@github-tools/eve-extension`
+ * instead. See https://github-tools.com/frameworks/eve-extension.
+ */
+export const getCiFailureContext = factory('getCiFailureContext')
+/**
+ * Fetch a release plus the previous release and tag comparison in one call.
+ *
+ * @deprecated Cherry-picking eve tool factories directly is deprecated — mount `@github-tools/eve-extension`
+ * instead. See https://github-tools.com/frameworks/eve-extension.
+ */
+export const getReleaseContext = factory('getReleaseContext')

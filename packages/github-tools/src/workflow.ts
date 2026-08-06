@@ -23,6 +23,7 @@ import type { GithubToolName } from './core/tool-names'
 import type { ApprovalConfig } from './index'
 import type { CommitIdentity } from './types'
 import type { GithubTokenInput } from './core/token'
+import type { GithubToolsContext } from './core/context'
 import type { Context } from '@ai-sdk/provider-utils'
 
 /**
@@ -147,6 +148,10 @@ export type CreateDurableGithubAgentOptions =
      */
     additionalInstructions?: string
     /**
+     * Default owner / repo / PR / issue / ref values for tools and the system prompt.
+     */
+    context?: GithubToolsContext
+    /**
      * Default author for commit-creating tools.
      * Falls back to the authenticated user when omitted.
      */
@@ -207,6 +212,7 @@ export function createDurableGithubAgent({
   token,
   preset,
   requireApproval,
+  context,
   instructions,
   additionalInstructions,
   author,
@@ -214,17 +220,17 @@ export function createDurableGithubAgent({
   coAuthors,
   ...agentOptions
 }: CreateDurableGithubAgentOptions): DurableGithubAgent<AllGithubTools | Pick<AllGithubTools, GithubToolName>> {
-  const tools = createGithubTools({ token, requireApproval, preset, author, committer, coAuthors })
+  const tools = createGithubTools({ token, requireApproval, preset, context, author, committer, coAuthors })
 
   return new DurableGithubAgent({
     ...agentOptions,
     model,
     tools,
-    instructions: resolveInstructions({ preset, instructions, additionalInstructions }),
+    instructions: resolveInstructions({ preset, instructions, additionalInstructions, context }),
   }) as DurableGithubAgent<typeof tools>
 }
 
 export { createGithubTools, createGithubAgent } from './index'
-export type { CommitIdentity, CommitToolOptions, GithubTools, GithubToolsOptions, GithubToolPreset, GithubToolName, GithubWriteToolName, ApprovalConfig, ToolOverrides, AllGithubTools, PresetToolName, CombinedPresetToolNames, GithubToolsForPreset, PickGithubTools, GithubTokenInput } from './index'
+export type { CommitIdentity, CommitToolOptions, GithubTools, GithubToolsOptions, GithubToolPreset, GithubToolName, GithubWriteToolName, ApprovalConfig, ToolOverrides, AllGithubTools, PresetToolName, CombinedPresetToolNames, GithubToolsForPreset, PickGithubTools, GithubTokenInput, GithubToolsContext } from './index'
 export { PRESET_TOOLS, GITHUB_TOOL_NAMES, GITHUB_WRITE_TOOLS, resolveGithubToken } from './index'
 export type { CreateGithubAgentOptions } from './agents'

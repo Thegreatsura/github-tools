@@ -108,11 +108,32 @@ export const getFileContentInputSchema = z.object({
   repo: z.string().describe('Repository name'),
   path: z.string().describe('Path to the file in the repository'),
   ref: z.string().optional().describe('Branch, tag, or commit SHA (defaults to the default branch)'),
+  startLine: z.number().int().positive().optional().describe('1-based start line to return (inclusive). Use with endLine or maxLines to avoid loading large files'),
+  endLine: z.number().int().positive().optional().describe('1-based end line to return (inclusive). Defaults to startLine + maxLines - 1 when maxLines is set'),
+  maxLines: z.number().int().positive().optional().describe('Max number of lines to return from startLine (or from line 1). Prefer this over reading an entire large file'),
 })
 
-export const getFileContentDescription = 'Get the content of a file from a GitHub repository'
+export const getFileContentDescription = 'Get the content of a file from a GitHub repository. Prefer startLine/endLine or maxLines to read only the lines you need'
 
-export async function getFileContentCore({ token, owner, repo, path, ref }: { token: string, owner: string, repo: string, path: string, ref?: string }) {
+export async function getFileContentCore({
+  token,
+  owner,
+  repo,
+  path,
+  ref,
+  startLine,
+  endLine,
+  maxLines,
+}: {
+  token: string
+  owner: string
+  repo: string
+  path: string
+  ref?: string
+  startLine?: number
+  endLine?: number
+  maxLines?: number
+}) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.repos.getContent({ owner, repo, path, ref })
   if (Array.isArray(data)) {
@@ -121,13 +142,38 @@ export async function getFileContentCore({ token, owner, repo, path, ref }: { to
   if (data.type !== 'file') {
     return { type: data.type, path: data.path }
   }
-  const content = Buffer.from(data.content, 'base64').toString('utf-8')
+  const fullContent = Buffer.from(data.content, 'base64').toString('utf-8')
+  const lines = fullContent.split('\n')
+  const totalLines = lines.length
+
+  const wantsRange = startLine != null || endLine != null || maxLines != null
+  if (!wantsRange) {
+    return {
+      type: 'file' as const,
+      path: data.path,
+      sha: data.sha,
+      size: data.size,
+      totalLines,
+      content: fullContent,
+    }
+  }
+
+  const from = startLine ?? 1
+  const to = endLine ?? (maxLines != null ? from + maxLines - 1 : totalLines)
+  const clampedFrom = Math.min(Math.max(from, 1), totalLines)
+  const clampedTo = Math.min(Math.max(to, clampedFrom), totalLines)
+  const slice = lines.slice(clampedFrom - 1, clampedTo)
+
   return {
     type: 'file' as const,
     path: data.path,
     sha: data.sha,
     size: data.size,
-    content,
+    totalLines,
+    startLine: clampedFrom,
+    endLine: clampedTo,
+    truncated: clampedFrom > 1 || clampedTo < totalLines,
+    content: slice.join('\n'),
   }
 }
 

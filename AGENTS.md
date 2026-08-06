@@ -1,6 +1,6 @@
 ## Overview
 
-`@github-tools/sdk` wraps GitHub's REST API as 53 AI SDK-compatible tools for agents and `generateText`/`streamText` calls — with presets, approval control, and integrations for eve, Vercel Workflow, and Chat SDK. Docs: [github-tools.com](https://github-tools.com).
+`@github-tools/sdk` wraps GitHub's REST API as 57 AI SDK-compatible tools for agents and `generateText`/`streamText` calls — with presets, approval control, and integrations for eve, Vercel Workflow, and Chat SDK. Docs: [github-tools.com](https://github-tools.com).
 
 ## Commands
 
@@ -75,7 +75,7 @@ export const myTool = (token: GithubTokenInput, { needsApproval = true }: ToolOp
 - `src/workflow.ts` — `createDurableGithubAgent()` (`WorkflowAgent` from `@ai-sdk/workflow`), exported from `@github-tools/sdk/workflow` subpath
 - `src/client.ts` — `createOctokit(token)` wrapper
 - `src/types.ts` — `ToolOptions`, `CommitToolOptions`, `ToolOverrides`, `GithubTool`
-- `src/tools/` — 7 domain files (the `ai` SDK wrapper layer): `repository.ts`, `pull-requests.ts`, `issues.ts`, `commits.ts`, `gists.ts`, `workflows.ts`, `search.ts`
+- `src/tools/` — domain files (the `ai` SDK wrapper layer): `repository.ts`, `pull-requests.ts`, `issues.ts`, `commits.ts`, `gists.ts`, `workflows.ts`, `search.ts`, `checks.ts`, `releases.ts`, `bundles.ts`
 - `src/core/` — matching domain files (pure logic: schema, description, `*Core` function) plus `tool-names.ts` (`GITHUB_TOOL_NAMES`/`GithubToolName`), `write-tools.ts` (`GITHUB_WRITE_TOOLS`/`GithubWriteToolName`), `presets.ts` (`PRESET_TOOLS`), `token.ts` (`resolveGithubToken`), `approval.ts` (`resolveAiSdkApproval`)
 
 ### Dual-Mode Agents

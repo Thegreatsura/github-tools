@@ -35,7 +35,7 @@ async function getCommitStep(args: Parameters<typeof getCommitCore>[0]) {
   return getCommitCore(args)
 }
 
-/** Get detailed information about a specific commit, including files changed with additions and deletions. */
+/** Get detailed information about a specific commit. Patches omitted by default. */
 export const getCommit = (token: GithubTokenInput): GithubTool =>
   tool({
     description: getCommitDescription,
@@ -62,7 +62,7 @@ async function compareCommitsStep(args: Parameters<typeof compareCommitsCore>[0]
   return compareCommitsCore(args)
 }
 
-/** Compare two branches, tags, or commits — shows ahead/behind counts, the commits in between, and the files that differ. */
+/** Compare two branches, tags, or commits. Patches omitted by default. */
 export const compareCommits = (token: GithubTokenInput): GithubTool =>
   tool({
     description: compareCommitsDescription,

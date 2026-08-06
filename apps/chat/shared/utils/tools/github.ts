@@ -28,8 +28,10 @@ export const GITHUB_TOOL_META: Record<GithubToolName, GithubToolMeta> = {
   listPullRequestReviews: { title: 'List PR Reviews', label: 'Reviews listed', labelActive: 'Listing PR reviews', icon: 'i-lucide-message-circle' },
   createPullRequestReview: { title: 'Submit PR Review', label: 'Review submitted', labelActive: 'Submitting PR review', icon: 'i-lucide-shield-check' },
   requestReviewers: { title: 'Request Reviewers', label: 'Reviewers requested', labelActive: 'Requesting reviewers', icon: 'i-lucide-user-plus' },
+  getPullRequestContext: { title: 'PR Context', label: 'PR context loaded', labelActive: 'Loading PR context', icon: 'i-lucide-layers' },
   listIssues: { title: 'List Issues', label: 'Issues listed', labelActive: 'Listing issues', icon: 'i-lucide-circle-dot' },
   getIssue: { title: 'Get Issue', label: 'Issue fetched', labelActive: 'Fetching issue', icon: 'i-lucide-circle-dot' },
+  getIssueContext: { title: 'Issue Context', label: 'Issue context loaded', labelActive: 'Loading issue context', icon: 'i-lucide-layers' },
   createIssue: { title: 'Create Issue', label: 'Issue created', labelActive: 'Creating issue', icon: 'i-lucide-circle-plus' },
   addIssueComment: { title: 'Comment on Issue', label: 'Comment posted', labelActive: 'Posting issue comment', icon: 'i-lucide-message-square-plus' },
   closeIssue: { title: 'Close Issue', label: 'Issue closed', labelActive: 'Closing issue', icon: 'i-lucide-circle-check' },
@@ -60,9 +62,11 @@ export const GITHUB_TOOL_META: Record<GithubToolName, GithubToolMeta> = {
   rerunWorkflowRun: { title: 'Re-run Workflow', label: 'Workflow re-run', labelActive: 'Re-running workflow', icon: 'i-lucide-refresh-cw' },
   listCheckRuns: { title: 'List Check Runs', label: 'Check runs listed', labelActive: 'Listing check runs', icon: 'i-lucide-list-checks' },
   getCombinedStatus: { title: 'Get Combined Status', label: 'Status fetched', labelActive: 'Fetching combined status', icon: 'i-lucide-activity' },
+  getCiFailureContext: { title: 'CI Failure Context', label: 'CI failures loaded', labelActive: 'Diagnosing CI failures', icon: 'i-lucide-triangle-alert' },
   listReleases: { title: 'List Releases', label: 'Releases listed', labelActive: 'Listing releases', icon: 'i-lucide-tag' },
   getLatestRelease: { title: 'Get Latest Release', label: 'Latest release fetched', labelActive: 'Fetching latest release', icon: 'i-lucide-tag' },
   getRelease: { title: 'Get Release', label: 'Release fetched', labelActive: 'Fetching release', icon: 'i-lucide-tag' },
+  getReleaseContext: { title: 'Release Context', label: 'Release context loaded', labelActive: 'Loading release context', icon: 'i-lucide-layers' },
   createRelease: { title: 'Create Release', label: 'Release created', labelActive: 'Creating release', icon: 'i-lucide-rocket' }
 }
 

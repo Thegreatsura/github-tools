@@ -107,11 +107,12 @@ export const getCommitInputSchema = z.object({
   owner: z.string().describe('Repository owner'),
   repo: z.string().describe('Repository name'),
   ref: z.string().describe('Commit SHA, branch name, or tag'),
+  includePatch: z.boolean().optional().default(false).describe('Include diff patches for changed files (token-heavy). Prefer false unless you need the diffs'),
 })
 
-export const getCommitDescription = 'Get detailed information about a specific commit, including the list of files changed with additions and deletions'
+export const getCommitDescription = 'Get detailed information about a specific commit, including the list of files changed with additions and deletions. Patches are omitted by default — set includePatch true to include diffs'
 
-export async function getCommitCore({ token, owner, repo, ref }: { token: string, owner: string, repo: string, ref: string }) {
+export async function getCommitCore({ token, owner, repo, ref, includePatch }: { token: string, owner: string, repo: string, ref: string, includePatch: boolean }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.repos.getCommit({ owner, repo, ref })
   return {
@@ -131,7 +132,7 @@ export async function getCommitCore({ token, owner, repo, ref }: { token: string
       status: file.status,
       additions: file.additions,
       deletions: file.deletions,
-      patch: file.patch,
+      ...includePatch && file.patch != null ? { patch: file.patch } : {},
     })),
   }
 }
@@ -232,11 +233,12 @@ export const compareCommitsInputSchema = z.object({
   repo: z.string().describe('Repository name'),
   base: z.string().describe('Base branch, tag, or commit SHA'),
   head: z.string().describe('Head branch, tag, or commit SHA to compare against base'),
+  includePatch: z.boolean().optional().default(false).describe('Include diff patches for changed files (token-heavy). Prefer false unless you need the diffs'),
 })
 
-export const compareCommitsDescription = 'Compare two branches, tags, or commits — shows ahead/behind counts, the commits in between, and the files that differ'
+export const compareCommitsDescription = 'Compare two branches, tags, or commits — shows ahead/behind counts, the commits in between, and the files that differ. Patches are omitted by default — set includePatch true to include diffs'
 
-export async function compareCommitsCore({ token, owner, repo, base, head }: { token: string, owner: string, repo: string, base: string, head: string }) {
+export async function compareCommitsCore({ token, owner, repo, base, head, includePatch }: { token: string, owner: string, repo: string, base: string, head: string, includePatch: boolean }) {
   const octokit = createOctokit(token)
   const { data } = await octokit.rest.repos.compareCommitsWithBasehead({ owner, repo, basehead: `${base}...${head}` })
   return {
@@ -256,7 +258,7 @@ export async function compareCommitsCore({ token, owner, repo, base, head }: { t
       status: file.status,
       additions: file.additions,
       deletions: file.deletions,
-      patch: file.patch,
+      ...includePatch && file.patch != null ? { patch: file.patch } : {},
     })),
   }
 }

@@ -1,4 +1,5 @@
 import type { ApprovalConfig } from './approval'
+import type { GithubToolsContext } from './context'
 import type { CombinedPresetToolNames, GithubToolPreset, PresetToolName } from './presets'
 import type { GithubTokenInput } from './token'
 import type { GithubToolName } from './tool-names'
@@ -13,6 +14,12 @@ export type GithubToolsBaseOptions = {
   token?: GithubTokenInput
   /** Control whether write operations require user approval. @see {@link ApprovalConfig} */
   requireApproval?: ApprovalConfig
+  /**
+   * Default owner / repo / PR / issue / ref values.
+   * Softens matching tool input fields and fills them when the model omits them.
+   * Also injected into agent system prompts via {@link createGithubAgent}.
+   */
+  context?: GithubToolsContext
   /** Per-tool overrides for description, title, needsApproval, and related AI SDK tool fields. */
   overrides?: Partial<Record<GithubToolName, ToolOverrides>>
   /** Default author for commit-creating tools. Falls back to the authenticated user when omitted. */
