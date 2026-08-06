@@ -10,6 +10,15 @@ Minimal [eve](https://eve.dev) agent mounting `@github-tools/eve-extension` with
 The connector `github/test-github-tools` must be linked to your Vercel project and installed on
 the GitHub org/repos you want the agent to access.
 
+For GitHub @mentions / webhooks, attach the Connect trigger to eve's GitHub route (not the
+default Connect path):
+
+```bash
+vercel connect attach github/test-github-tools --triggers --trigger-path /eve/v1/github --yes
+```
+
+Set `botName` in `agent/channels/github.ts` to the GitHub App slug people `@mention`.
+
 ### 2. Pull the OIDC token for local dev
 
 ```bash
@@ -44,9 +53,23 @@ pnpm dev:eve-extension-agent
 agent/
   agent.ts               # eve agent config
   instructions.md        # system prompt
+  channels/
+    eve.ts               # HTTP API (TUI / curl / frontend) + OIDC auth
+    github.ts            # inbound GitHub (@mentions / webhooks)
   extensions/
-    github.ts            # GitHub tools via @github-tools/eve-extension
+    github.ts            # GitHub API tools via @github-tools/eve-extension
 ```
+
+The **channels** are how clients reach the agent (HTTP or GitHub). The **extension** is how the
+agent calls the GitHub API. GitHub turns only dispatch when **HugoRCD** `@mention`s `botName`.
+Write-tool approval is posted as a comment via `events["input.requested"]` — eve's GitHub
+channel does not ship that handler by default.
+
+To approve a parked write, reply with exactly `Yes` or `No` (no quote-reply, no `@mention`
+needed). The monorepo applies a temporary `eve@0.30.6` patch so (1) GitHub context is turn
+`context` instead of being prepended onto the comment text (which broke `Yes`/`No` matching),
+and (2) bare approval replies send no deferred context (otherwise the model follows up asking
+what to do with “empty” metadata).
 
 ## Customize
 
