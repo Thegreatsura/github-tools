@@ -55,6 +55,30 @@ function resolveRepo() {
   return match[1]
 }
 
+/**
+ * Resolve a tag/ref to a commit SHA.
+ *
+ * Scoped package tags start with `@` (`@scope/name@version`). Prefer the
+ * explicit `refs/tags/…` form so git never confuses them with `@` = HEAD.
+ * Returns null when the ref is missing locally (common when
+ * `commitMode: github-api` skips git identity and changeset's annotated
+ * `git tag -m` fails silently — the tag then exists only on the remote).
+ */
+function resolveCommit(ref) {
+  if (!ref) return null
+  for (const candidate of [`refs/tags/${ref}`, ref]) {
+    try {
+      return execFileSync('git', ['rev-parse', '--verify', `${candidate}^{commit}`], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim()
+    } catch {
+      // try next form
+    }
+  }
+  return null
+}
+
 /** Map every workspace package name to its directory. */
 function packageDirs() {
   const root = resolve(process.cwd(), 'packages')
@@ -133,7 +157,13 @@ function previousTag(name, currentTag) {
 
 /** Commits in (from, to] that touched the package directory. */
 function commitsTouching(dir, from, to) {
-  const range = from ? `${from}..${to}` : to
+  const toSha = resolveCommit(to)
+  if (!toSha) throw new Error(`cannot resolve release ref "${to}" to a commit`)
+  const fromSha = from ? resolveCommit(from) : null
+  if (from && !fromSha) {
+    console.warn(`[release-notes] previous ref "${from}" missing locally; using full history through ${to}`)
+  }
+  const range = fromSha ? `${fromSha}..${toSha}` : toSha
   const out = git('log', range, '--format=%H', '--no-merges', '--', dir)
   return out ? out.split('\n').filter(Boolean) : []
 }
@@ -208,7 +238,14 @@ async function main() {
     }
 
     const previous = previousTag(name, tag)
-    const head = process.env.RELEASE_NOTES_REF ?? tag
+    // Prefer an explicit override, then the release tag, then HEAD — the tag
+    // may be missing locally when only the remote was tagged via the API.
+    const head = process.env.RELEASE_NOTES_REF
+      ?? (resolveCommit(tag) ? tag : null)
+      ?? 'HEAD'
+    if (head !== tag && !process.env.RELEASE_NOTES_REF) {
+      console.warn(`[release-notes] ${tag} not present locally; ranging to HEAD`)
+    }
     const shas = commitsTouching(dir, previous, head)
 
     // One PR can carry several commits; keep first-seen order (newest first).
