@@ -1,4 +1,4 @@
-import type { Approval } from 'eve/tools'
+import type { Approval, ApprovalPolicy } from 'eve/tools'
 import type { GithubWriteToolName } from '../core/write-tools'
 import { getEveApprovalHelpers } from './load-eve'
 import type { EveApprovalConfig, EveApprovalValue } from './types'
@@ -12,7 +12,7 @@ export function isEveApprovalDisabled(value: EveApprovalValue | undefined): bool
   return value === false || value === 'never'
 }
 
-export function mapEveApprovalValue(value: EveApprovalValue): Approval {
+export function mapEveApprovalValue(value: EveApprovalValue): ApprovalPolicy {
   if (typeof value === 'function') return value
 
   const { always, never, once } = getEveApprovalHelpers()
@@ -27,7 +27,7 @@ export function mapEveApprovalValue(value: EveApprovalValue): Approval {
 export function resolveEveApproval(
   toolName: GithubWriteToolName,
   config: EveApprovalConfig | undefined,
-): Approval | undefined {
+): ApprovalPolicy {
   if (config === undefined) return getEveApprovalHelpers().always()
   if (config === true) return getEveApprovalHelpers().always()
   if (config === false) return getEveApprovalHelpers().never()
