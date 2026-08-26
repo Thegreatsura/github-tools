@@ -1,5 +1,13 @@
 # @github-tools/sdk
 
+## 1.11.2
+
+### Patch Changes
+
+- [#100](https://github.com/vercel-labs/github-tools/pull/100) [`0a9eae4`](https://github.com/vercel-labs/github-tools/commit/0a9eae4df8c431faa63aadad18112149aabab6f9) Thanks [@HugoRCD](https://github.com/HugoRCD)! - Apply built-in eve `toModelOutput` formatters through an inline callback that only closes over the tool name. On eve 0.44.x this keeps tools like `getFileContent` from failing durable-descriptor validation and dropping the whole GitHub toolset.
+
+- [#101](https://github.com/vercel-labs/github-tools/pull/101) [`ade87da`](https://github.com/vercel-labs/github-tools/commit/ade87da57d9a9de4994ed2848244a9404f5c369e) Thanks [@HugoRCD](https://github.com/HugoRCD)! - Skip the REST update when `updatePullRequest` is called with only `draft`. Octokit was sending an empty PATCH body (`''`), which GitHub rejects with 400 before the GraphQL draft mutation could run.
+
 ## 1.11.1
 
 ### Patch Changes
