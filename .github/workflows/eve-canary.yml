@@ -52,11 +52,12 @@ jobs:
           const fs = require('node:fs')
           const path = 'pnpm-workspace.yaml'
           const source = fs.readFileSync(path, 'utf8')
+          const pattern = /('@ai-sdk\\/workflow>ai': )\\S+/
+          if (!pattern.test(source)) throw new Error('AI SDK workflow override was not found')
           const updated = source.replace(
-            /('@ai-sdk\/workflow>ai': )\S+/,
+            pattern,
             (_, prefix) => `${prefix}${process.env.AI_VERSION}`,
           )
-          if (updated === source) throw new Error('AI SDK workflow override was not updated')
           fs.writeFileSync(path, updated)
           NODE
           pnpm -r up \

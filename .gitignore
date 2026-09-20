@@ -26,3 +26,5 @@ logs
 apps/chat/.data
 .turbo/
 .workflow-data/
+.vercel
+.env*
