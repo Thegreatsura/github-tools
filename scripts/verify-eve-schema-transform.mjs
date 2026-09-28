@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   createSourceFile,
   forEachChild,
@@ -12,16 +13,9 @@ import {
   ScriptTarget,
 } from 'typescript'
 
-const bundlePath = process.argv[2]
-assert.ok(bundlePath, 'Usage: node scripts/verify-eve-schema-transform.mjs <bundle>')
+const serverDir = process.argv[2]
+assert.ok(serverDir, 'Usage: node scripts/verify-eve-schema-transform.mjs <server-output-dir>')
 
-const source = createSourceFile(
-  bundlePath,
-  readFileSync(bundlePath, 'utf8'),
-  ScriptTarget.Latest,
-  true,
-  ScriptKind.JS,
-)
 const durableSchemas = new Set()
 
 function propertyName(node) {
@@ -54,5 +48,10 @@ function walk(node) {
   forEachChild(node, walk)
 }
 
-walk(source)
+// eve >= 0.67 emits index.mjs as a loader and moves the server code into _chunks/.
+const bundles = readdirSync(serverDir, { recursive: true }).filter(file => file.endsWith('.mjs'))
+for (const file of bundles) {
+  const path = join(serverDir, file)
+  walk(createSourceFile(path, readFileSync(path, 'utf8'), ScriptTarget.Latest, true, ScriptKind.JS))
+}
 assert.deepEqual([...durableSchemas].sort(), ['inputSchema', 'outputSchema'])
